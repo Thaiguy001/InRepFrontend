@@ -21,6 +21,11 @@ const items = ref([
         command: () => router.push('/'),
     },
     {
+        label: 'Incidents',
+        icon: 'pi pi-info-circle',
+        command: () => router.push('/incidents'),
+    },
+    {
         label: 'Test',
         icon: 'pi pi-info-circle',
         command: () => router.push('/test'),
