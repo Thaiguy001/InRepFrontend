@@ -7,13 +7,9 @@
         <button v-if="!auth.isLoggedIn" class="btn-primary navButton" @click="auth.login()">
             <i class="pi pi-sign-in"></i><label> Login</label>
         </button>
-        <Button
-            v-else
-            label="Logout"
-            icon="pi pi-sign-out"
-            text
-            @click="auth.logout()"
-        />
+        <button v-else class="btn-primary navButton" @click="auth.logout()">
+            <i class="pi pi-sign-out"></i><label> Logout</label>
+        </button>
         </template>
     </Menubar>
 </template>

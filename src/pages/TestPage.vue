@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import { onMounted, reactive } from 'vue'
-import { TestService } from '@/api/generated'
+import { TestService } from '@/api'
 
 const state = reactive({
     testMessage: null as string | null,

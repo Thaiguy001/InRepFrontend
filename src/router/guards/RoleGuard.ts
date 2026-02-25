@@ -1,7 +1,7 @@
 // src/router/guards/roleGuard.ts
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { RouteNames } from '@/enums/RouteNames'
+//import { RouteNames } from '@/enums/RouteNames'
 
 function extractRoles(user: any): string[] {
   const raw = user?.profile?.['cognito:groups'] ?? []
@@ -20,6 +20,6 @@ export default function roleGuard(
   const roles = extractRoles(auth.user)
   const hasRole = roles.some((r) => to.meta.roles!.includes(r))
 
-  if (!hasRole) return next({ name: RouteNames.ERROR_PAGE, params: { code: '403' }, query: { routeName: to.fullPath } })
+  if (!hasRole) return next({ name: 'notfound' }) //Replace with forbidden page when implemented
   next()
 }

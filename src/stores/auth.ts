@@ -1,4 +1,3 @@
-// src/stores/auth.ts
 import { defineStore } from 'pinia'
 import { UserManager, User } from 'oidc-client-ts'
 
@@ -14,14 +13,14 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     init() {
       this.userManager = new UserManager({
-        authority: import.meta.env.VITE_COGNITO_DOMAIN,
+        authority: import.meta.env.VITE_COGNITO_USER_POOL_URL,
         client_id: import.meta.env.VITE_COGNITO_CLIENT_ID,
         redirect_uri: window.location.origin + '/callback',
         response_type: 'code',
         scope: 'openid profile email',
         post_logout_redirect_uri: window.location.origin,
         metadata: {
-          issuer: import.meta.env.VITE_COGNITO_DOMAIN,
+          issuer: import.meta.env.VITE_COGNITO_USER_POOL_URL,
           authorization_endpoint: import.meta.env.VITE_COGNITO_DOMAIN + '/oauth2/authorize',
           end_session_endpoint: import.meta.env.VITE_COGNITO_DOMAIN + '/logout',
           token_endpoint: import.meta.env.VITE_COGNITO_DOMAIN + '/oauth2/token',
@@ -47,9 +46,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     login() {
-      console.
+      console.log('Initiating login...')
       if (!this.userManager) return
-      return this.userManager.signinRedirect()
+      this.userManager.signinRedirect()
     },
 
     async handleCallback() {
