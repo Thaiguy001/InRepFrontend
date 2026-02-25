@@ -42,6 +42,8 @@ The frontend uses a generated TypeScript client based on the backend OpenAPI spe
 
 Run:
 
+curl http://localhost:8000/openapi.json -o openapi.json
+
 npm run generate-api
 
 This will:

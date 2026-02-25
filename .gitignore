@@ -38,6 +38,10 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 
+src/api/generated/
+openapi.json
+
+# Environment variables
 .env
 
 /src/api/generated/*
