@@ -40,4 +40,4 @@ __screenshots__/
 
 .env
 
-/src/api/*
+/src/api/generated/*
