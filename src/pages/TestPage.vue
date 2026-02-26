@@ -33,7 +33,7 @@
 import Card from 'primevue/card'
 import { reactive } from 'vue'
 import { type Service } from '@/api/generated/models/Service'
-import { ServiceService } from '@/api/generated/services/ServiceService'
+import { ServiceService } from '@/api'
 
 const state = reactive({
 	service: null as Service | null,

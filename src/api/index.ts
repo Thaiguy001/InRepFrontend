@@ -1,7 +1,7 @@
 import { OpenAPI } from './generated'
 import { useAuthStore } from '@/stores/auth'
 
-OpenAPI.BASE = import.meta.env.VITE_API_BASE_URL
+OpenAPI.BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 
 OpenAPI.TOKEN = async () => {
     const authStore = useAuthStore()
