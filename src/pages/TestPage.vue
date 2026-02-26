@@ -3,15 +3,26 @@
         <div>
             <h1>Test Page</h1>
             <p>Test page</p>
+            <div class="mb-3">
+                <label for="serviceId" class="block mb-1">Service ID:</label>
+                <input id="serviceId" type="number" v-model.number="state.requestId" class="border rounded p-1" />
+                <button class="p-button p-button-primary ml-2" @click="fetchTest()" :disabled="state.loading">
+                    Fetch
+                </button>
+            </div>
         </div>
-        <div v-if="!state.loading">
+        <div v-if="!state.loading && state.service">
             <Card class="mb-3">
-                <template #title>{{ state.testMessage }}</template>
-
+                <template #title>id: [{{ state.service?.id }}]</template>
+                <template #content>
+                    <p>Name: {{ state.service?.name }}</p>
+                    <p>Description: {{ state.service?.description }}</p>
+                </template>
+                
             </Card>
         </div>
         <div v-else-if="state.error">{{ state.error }}</div>
-        <div v-else>
+        <div v-else-if="state.loading">
             <p>Loading...</p>
         </div>
     </div>
@@ -20,30 +31,33 @@
 
 <script setup lang="ts">
 import Card from 'primevue/card'
-import { onMounted, reactive } from 'vue'
-import { TestService } from '@/api'
+import { reactive } from 'vue'
+import { type Service } from '@/api/generated/models/Service'
+import { ServiceService } from '@/api/generated/services/ServiceService'
 
 const state = reactive({
-    testMessage: null as string | null,
+	service: null as Service | null,
     loading: false,
     error: null as string | null,
-})
-
-onMounted(() => {
-    console.log('AboutView mounted')
-    fetchTest()
+    requestId: 0,
 })
 
 async function fetchTest() {
     state.loading = true
     state.error = null
+    state.service = null
     try {
-        const response = await TestService.getApiV1Test()
+        const result = await ServiceService.getApiV1ServiceId(state.requestId);
 
-        if ('data' in response) {
-            state.testMessage = response.data
+        // the generated client returns Service | Error
+        if (result) {
+            state.service = result as Service;
+            console.log(state.service)
+        } else if (result && 'message' in result) {
+            // service returned an Error object from API
+            state.error = (result as Error).message || 'Service request failed';
         } else {
-            state.error = response.message || 'An error occurred'
+            state.error = 'Service not found'
         }
     } catch (error: any) {
         state.error = error?.message || 'An error occurred'
