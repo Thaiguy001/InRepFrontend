@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../pages/HomePage.vue'
+import RoleGuard from './guards/RoleGuard'
+import AuthGuard from './guards/AuthGuard'
+import { Roles } from '@/enums/Roles.ts'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,6 +16,15 @@ const router = createRouter({
       path: '/test',
       name: 'test',
       component: () => import('../pages/TestPage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
+      path: '/callback',
+      name: 'callback',
+      component: () => import('../pages/CallbackPage.vue'),
     },
     {
       path: '/:pathMatch(.*)*',
@@ -21,5 +33,8 @@ const router = createRouter({
     },
   ],
 })
+
+router.beforeEach(AuthGuard)
+router.beforeEach(RoleGuard)
 
 export default router
