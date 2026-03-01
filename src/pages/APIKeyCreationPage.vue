@@ -19,7 +19,10 @@
         <p>Loading...</p>
     </div>
     <div v-if="state.key">
+        <button class="key-block" @click="toggle">{{ revealed ? 'Hide' : 'Reveal' }}</button>
+        <pre>{{ revealed ? state.key : '*************************************************************************' }}<button v-if="revealed" @click="copyKey" class="copy-button">Copy</button></pre>
         Copy the API Key: {{ state.key }}
+        <br>Reloading the page or creating a new API key will cause the page to stop showing the key, as it is only shown once for security reasons.
     </div>
 </template>
 
@@ -48,6 +51,18 @@ interface Service {
     description: string
 }
 const services = ref<Service[]>([])
+
+
+const revealed = ref(false)
+function toggle() {
+    revealed.value = !revealed.value
+}
+function copyKey() {
+    if (state.key) {
+        navigator.clipboard.writeText(state.key)
+        alert('API Key copied to clipboard!')
+    }
+}
 
 async function serviceFetch() {
     state.loading = true
@@ -100,3 +115,18 @@ async function createAPIKey() {
     }
 }
 </script>
+
+<style scoped>  
+.key-block {
+    user-select: text;
+    background: #111;
+    padding: 8px;
+    border-radius: 4px;
+}
+.copy-button {
+    margin-left: 10px;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+</style>
