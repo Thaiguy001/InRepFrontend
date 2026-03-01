@@ -2,7 +2,7 @@
     <h1>
         API Key Creation Simulator
     </h1>
-    <div v-if="!state.loading">
+    <div v-if="!state.loading && !state.key">
         <form @submit.prevent="serviceFetch">
             <div>Select a service for for the API key: </div>
 
@@ -15,14 +15,13 @@
         </form>
     </div>
     <div v-else-if="state.error">{{ state.error }}</div>
-    <div v-else>
+    <div v-else v-if="!state.key">
         <p>Loading...</p>
     </div>
     <div v-if="state.key">
         <button class="key-block" @click="toggle">{{ revealed ? 'Hide' : 'Reveal' }}</button>
-        <pre>{{ revealed ? state.key : '*************************************************************************' }}<button v-if="revealed" @click="copyKey" class="copy-button">Copy</button></pre>
-        Copy the API Key: {{ state.key }}
-        <br>Reloading the page or creating a new API key will cause the page to stop showing the key, as it is only shown once for security reasons.
+        <pre>{{ revealed ? state.key : '**************************************************' }}<button v-if="revealed" @click="copyKey" class="copy-button">Copy</button></pre>
+        <br>Reloading or loading a new page will hide the API key, it won't be shown again.
     </div>
 </template>
 
