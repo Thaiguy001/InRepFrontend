@@ -29,7 +29,7 @@
 import { onMounted, ref, reactive } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
-import { ServiceService, ApiKeyService } from '@/api/generated'
+import { ServiceService, ApiKeyService } from '@/api'
 
 const selected = ref('')
 
