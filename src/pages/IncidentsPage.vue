@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import { onMounted, ref, reactive } from 'vue'
-import { IncidentService } from '@/api/generated'
+import { IncidentService } from '@/api'
 import { definePreset } from '@primevue/themes'
 import 'primeicons/primeicons.css'
 
