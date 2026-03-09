@@ -26,6 +26,16 @@
             <p>Loading...</p>
         </div>
     </div>
+    <hr />
+    <h3>Toast test</h3>
+    <div class="grid">
+        <Button class="col-1" label="Success" severity="success" @click="showSuccess" />
+        <Button class="col-1" label="Info" severity="info" @click="showInfo" />
+        <Button class="col-1" label="Warn" severity="warn" @click="showWarn" />
+        <Button class="col-1" label="Error" severity="danger" @click="showError" />
+        <Button class="col-1" label="Secondary" severity="secondary" @click="showSecondary" />
+        <Button class="col-1" label="Contrast" severity="contrast" @click="showContrast" />
+    </div>
 
 </template>
 
@@ -34,6 +44,10 @@ import Card from 'primevue/card'
 import { reactive } from 'vue'
 import { type Service } from '@/api/generated/models/Service'
 import { ServiceService } from '@/api'
+import { useToast } from "primevue/usetoast";
+import Button from 'primevue/button'
+
+const toast = useToast();
 
 const state = reactive({
 	service: null as Service | null,
@@ -66,6 +80,31 @@ async function fetchTest() {
     }
 }
 
+// Toast tests
+const showSuccess = () => {
+    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Message Content', life: 3000 });
+};
+
+const showInfo = () => {
+    toast.add({ severity: 'info', summary: 'Info Message', detail: 'Message Content', life: 3000 });
+};
+
+const showWarn = () => {
+    toast.add({ severity: 'warn', summary: 'Warn Message', detail: 'Message Content', life: 3000 });
+};
+
+const showError = () => {
+    toast.add({ severity: 'error', summary: 'Error Message', detail: 'Message Content', life: 3000 });
+};
+
+const showSecondary = () => {
+    toast.add({ severity: 'secondary', summary: 'Secondary Message', detail: 'Message Content', life: 3000 });
+};
+
+const showContrast = () => {
+    toast.add({ severity: 'contrast', summary: 'Contrast Message', detail: 'Message Content', life: 3000 });
+};
+
 </script>
 
 <style scoped>
@@ -74,4 +113,5 @@ async function fetchTest() {
     margin-left: 15vw;
     padding: 3%;
 }
+
 </style>
