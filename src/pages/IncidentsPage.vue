@@ -7,6 +7,8 @@
                 <td><p>Unresolved</p> </td>
                 <td><input type="checkbox" name="Resolved" id="resolved" v-model="showResolved"></td>
                 <td><p>Resolved</p></td>
+                <td><input type="checkbox" name="Acknowledged" id="acknowledged" v-model="showAcknowledged"></td>
+                <td><p>Acknowledged</p></td>
             </tr>
         </tbody>
     </table>
@@ -14,17 +16,17 @@
         <div class="incident-list" v-if="!state.loading">
             <div v-for="(incident, index) in incidents">
                 <Card class="mb-3 issue-card" 
-                    v-if="(incident.status === 'open' && showUnResolved) || (incident.status === 'closed' && showResolved)"    
+                    v-if="(incident.status === 'triggered' && showUnResolved) || (incident.status === 'resolved' && showResolved)|| (incident.status === 'acknowledged' && showAcknowledged)"    
                     :key="index" 
                     @click="openIncident(incident.id)">
                 
                     <template #title>
                         <div class="row">
                             <span class="icon">
-                                <i v-if="incident.status === 'closed'" class="pi pi-check-circle green"></i>
-                                <i v-if="incident.status === 'open'" class="pi pi-minus-circle red"></i> 
+                                <i v-if="incident.status === 'resolved'" class="pi pi-check-circle green"></i>
+                                <i v-if="incident.status === 'triggered'" class="pi pi-minus-circle red"></i> 
                             </span>
-                            <span>{{ incident.name }}: {{ incident.description }} </span>
+                            <span>{{ incident.summary }} </span>
                             <span class="right" :class="severityClass(incident.severity)">{{ incident.severity }}</span>
                         </div>
                     </template>
@@ -32,11 +34,11 @@
                     <template #content> 
                         <div class="incident-meta">
                             <span class="issue-number">#{{ incident.id }}</span>
-                            <span v-if="incident.status === 'open'">
-                            reported at {{ formatTimestamp(incident.created_at) }} by {{ incident.author }}
+                            <span v-if="incident.status === 'triggered'">
+                            reported at {{ formatDate(incident.created_at) }}
                             </span>
-                            <span v-if="incident.status === 'closed'">
-                            resolved at {{ formatTimestamp(incident.resolved_at!) }}
+                            <span v-if="incident.status === 'resolved'">
+                            resolved at {{ formatDate(incident.resolved_at!) }}
                             </span>
                         </div>
                     </template>
@@ -61,6 +63,7 @@ import 'primeicons/primeicons.css'
 
 const showResolved = ref(false)
 const showUnResolved = ref(true)
+const showAcknowledged = ref(true)
 
 const state = reactive({
     testMessage: null as string | null,
@@ -77,12 +80,10 @@ interface IncidentsResponse {
     incidents: Incident[]
 }
 interface Incident {
-    name: string
+    summary: string
     id: number
-    description: string
     status: string
     severity: string
-    author: string
     created_at: number
     resolved_at: number | null
 }
@@ -94,9 +95,10 @@ async function fetchTest() {
 
     try {
         const response = await IncidentService.getApiV1Incidents()
+        console.log('Received incidents:', response)
 
-        if ('incidents' in response && Array.isArray(response.incidents)) {
-            incidents.value = response.incidents
+        if (Array.isArray(response) && response.length > 0) {
+            incidents.value = response as unknown as Incident[]
         } else if ('message' in response) {
             state.error = response.message ?? 'There are no incidents'
         }
@@ -111,8 +113,13 @@ function openIncident(incident_id: number) {
     window.open(`/incident/${incident_id}`, '_blank')?.focus()
 }
 
-function formatTimestamp(ts: number): string {
-    return new Date(ts * 1000).toLocaleString()
+const formatter = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'short'
+});
+
+function formatDate(ts: any) {
+  return formatter.format(new Date(ts));
 }
 
 function severityClass(severity: string) {
