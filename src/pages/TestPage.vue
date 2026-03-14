@@ -26,6 +26,16 @@
             <p>Loading...</p>
         </div>
     </div>
+    <hr />
+    <h3>Toast test</h3>
+    <div class="grid">
+        <Button class="col-1" label="Success" severity="success" @click="() => showSuccess()" />
+        <Button class="col-1" label="Info" severity="info" @click="() => showInfo()" />
+        <Button class="col-1" label="Warn" severity="warn" @click="() => showWarn()" />
+        <Button class="col-1" label="Error" severity="danger" @click="() => showError()" />
+        <Button class="col-1" label="Secondary" severity="secondary" @click="() => showSecondary()" />
+        <Button class="col-1" label="Contrast" severity="contrast" @click="() => showContrast()" />
+    </div>
 
 </template>
 
@@ -34,6 +44,10 @@ import Card from 'primevue/card'
 import { reactive } from 'vue'
 import { type Service } from '@/api/generated/models/Service'
 import { ServiceService } from '@/api'
+import Button from 'primevue/button'
+import { useToastHelperService } from '@/services/toastHelperService'
+
+const { showSuccess, showInfo, showWarn, showError, showSecondary, showContrast } = useToastHelperService()
 
 const state = reactive({
 	service: null as Service | null,
@@ -51,20 +65,28 @@ async function fetchTest() {
 
         // the generated client returns Service | Error
         if (result) {
+            showSuccess('Service fetched successfully');
             state.service = result as Service;
             console.log(state.service)
         } else if (result && 'message' in result) {
             // service returned an Error object from API
             state.error = (result as Error).message || 'Service request failed';
+            showError('Failed to fetch service', state.error);
         } else {
             state.error = 'Service not found'
+            showWarn('Service not found', state.error);
         }
     } catch (error: any) {
         state.error = error?.message || 'An error occurred'
+        showError('An error occurred while fetching the service', state.error || 'Unknown error');
     } finally {
         state.loading = false
     }
 }
+
+// Toast tests
+
+
 
 </script>
 
@@ -74,4 +96,5 @@ async function fetchTest() {
     margin-left: 15vw;
     padding: 3%;
 }
+
 </style>
