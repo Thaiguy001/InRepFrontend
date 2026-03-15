@@ -22,6 +22,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/services-page',
+      name: 'services-page',
+      component: () => import('../pages/ServicesPage.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/callback',
       name: 'callback',
       component: () => import('../pages/CallbackPage.vue'),
