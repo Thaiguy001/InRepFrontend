@@ -1,36 +1,70 @@
 <template>
-    <h1>
-        API Key Creation Simulator
-    </h1>
-    <div v-if="!state.loading && !state.key && !state.error">
-        <form @submit.prevent="serviceFetch">
-            <div>Select a service for for the API key: </div>
+    <Card style="max-width:600px; margin:auto">
+        <template #title>
+            API Key Creation Simulator
+        </template>
 
-            <select v-model="selected">
-            <option disabled value="">Select a service:</option>
-            <option v-for="service in services" :key="service.id" :value="service.id">{{ service.name }}</option>
-            </select>
-            <br><br>
-            <Button @click="createAPIKey" type="submit" label="Create API Key" class="p-mt-2" />
-        </form>
-    </div>
-    <div v-else-if="state.error">{{ state.error }}
-        <br><br>
-    </div>
-    <div v-else v-if="!state.key">
-        <p>Loading...</p>
-    </div>
-    <div v-if="state.key">
-        Please copy and store your API key securely. It will not be shown again after this page is reloaded or navigated away from.
-        <pre>{{ revealed ? state.key : '**************************************************' }}<button v-if="revealed" @click="copyKey" class="copy-button">Copy</button></pre>
-        <button class="key-block" @click="toggle">{{ revealed ? 'Hide Key' : 'Reveal Key' }}</button>
-    </div>
+        <template #content>
+
+            <div v-if="!state.loading && !state.key && !state.error">
+
+                <form @submit.prevent="createAPIKey">
+
+                    <div class="field">
+                        <label>Select a service: </label>
+
+                        <Select v-model="selected" :options="services" optionLabel="name" optionValue="id"
+                            placeholder="Select a service" />
+                    </div>
+
+                    <Button v-if="selected" type="submit" label="Create API Key" icon="pi pi-key" class="p-mt-3" />
+
+                </form>
+
+            </div>
+
+            <Message v-else-if="state.error" severity="error">
+                {{ state.error }}
+            </Message>
+
+            <div v-else-if="state.loading">
+                <ProgressSpinner />
+            </div>
+
+            <div v-if="state.key" class="key-section">
+
+                <p>
+                    Please copy and store your API key securely. It will not be shown again
+                    after leaving this page.
+                </p>
+
+                <InputGroup>
+
+                    <Password :modelValue="state.key" :feedback="false" toggleMask readonly
+                        :inputProps="{ readonly: true }" class="w-full" />
+
+                    <Button icon="pi pi-copy" label="Copy" @click="copyKey" />
+
+                </InputGroup>
+                <div class="p-mt-3">
+
+                    <Button label="Create Another Key" icon="pi pi-refresh" severity="secondary" @click="refreshPage" />
+                </div>
+            </div>
+
+        </template>
+    </Card>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, reactive } from 'vue'
-import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import Card from 'primevue/card'
+import Select from 'primevue/select'
+import Password from 'primevue/password'
+import InputGroup from 'primevue/inputgroup'
+import Message from 'primevue/message'
+import ProgressSpinner from 'primevue/progressspinner'
 import { ServiceService, ApiKeyService } from '@/api'
 
 const selected = ref('')
@@ -68,34 +102,25 @@ function copyKey() {
 async function serviceFetch() {
     state.loading = true
     state.error = null
+    if (state.key) {
+        state.loading = false
+        console.log('API key already generated, skipping service fetch.')
+        return
+    }
     // Gets the list of sercives from the backend to populate the dropdown menu
     // if (!selected.value) return
     try {
         const response = await ServiceService.getApiV1Service()
         console.log('Services fetched successfully:', response)
         const validServices = []
+
         for (const service of response as Service[]) {
-            const validResponse = await ApiKeyService.getApiV1ApiKeyService(service.id)
-            console.log('Service:', service)
-            console.log('API key response for service:', validResponse)
-            if (Array.isArray(validResponse) && validResponse.length > 0) {
-                continue
-            } else {
-                console.log('Service is valid for API key creation:', service)
-                validServices.push(service)
-            }
+            console.log('Service is valid for API key creation:', service)
+            validServices.push(service)
         }
-        if (validServices.length === 0) {
-            if (!state.key) {
-                state.error = 'All Services already have API keys. Please delete an existing API key before creating a new one.'
-            } else {
-                state.error = 'Keys have been generated for all Services. You must delete an existing API key before creating any new ones.'
-            }
-            return
-        } else {
-            services.value = validServices
-        }
-        
+
+        services.value = validServices
+
     } catch (error: any) {
         console.error('Error fetching services:', error)
         state.error = error?.message || 'An error occurred while fetching services.'
@@ -103,6 +128,10 @@ async function serviceFetch() {
     } finally {
         state.loading = false
     }
+}
+
+function refreshPage() {
+    window.location.reload()
 }
 
 async function createAPIKey() {
@@ -127,17 +156,26 @@ async function createAPIKey() {
 }
 </script>
 
-<style scoped>  
+<style scoped>
 .key-block {
     user-select: text;
     background: #111;
     padding: 8px;
     border-radius: 4px;
 }
+
 .copy-button {
     margin-left: 10px;
     padding: 4px 8px;
     font-size: 0.9em;
     cursor: pointer;
+}
+
+.field {
+    margin-bottom: 1.5rem;
+}
+
+.key-section {
+    margin-top: 1rem;
 }
 </style>

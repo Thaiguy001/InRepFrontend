@@ -30,6 +30,11 @@ const router = createRouter({
       path: '/create-api-key',
       name: 'create-api-key',
       component: () => import('../pages/APIKeyCreationPage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+      
     },
     {
       path: '/:pathMatch(.*)*',
