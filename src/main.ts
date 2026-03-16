@@ -8,7 +8,7 @@ import { definePreset } from '@primeuix/themes'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
-
+import { ToastService } from 'primevue'
 
 const app = createApp(App)
 
@@ -41,6 +41,7 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 
 app.use(router)
+app.use(ToastService)
 
 const authStore = useAuthStore()
 authStore.init()
