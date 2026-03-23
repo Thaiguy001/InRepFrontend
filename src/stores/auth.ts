@@ -41,6 +41,12 @@ export const useAuthStore = defineStore('auth', {
 
       this.userManager.events.addUserUnloaded(() => {
         this.user = null
+        this.appUser = null
+      })
+
+      this.userManager.events.addAccessTokenExpired(() => {
+        this.user = null
+        this.appUser = null
       })
 
       // Try to load user from storage
