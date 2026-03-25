@@ -14,8 +14,6 @@
       :saving="editDialog.saving"
       @save="handleEditSave"
     />
-
-    <ConfirmDialog />
   </div>
 </template>
 
