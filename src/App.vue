@@ -8,4 +8,5 @@ import { Toast } from 'primevue'
   <Toast />
   <AppHeader />
   <RouterView />
+  <ConfirmDialog />
 </template>
