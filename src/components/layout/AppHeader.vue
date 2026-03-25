@@ -4,12 +4,8 @@
             <h2 class="logo">Incident Response Platform</h2>
         </template>
         <template #end>
-        <button v-if="!auth.isLoggedIn" class="btn-primary navButton" @click="auth.login()">
-            <i class="pi pi-sign-in"></i><label> Login</label>
-        </button>
-        <button v-else class="btn-primary navButton" @click="auth.logout()">
-            <i class="pi pi-sign-out"></i><label> Logout</label>
-        </button>
+        <Button icon="pi pi-sign-in" @click="auth.login()" v-if="!auth.isLoggedIn" label="Login"/>
+        <Button icon="pi pi-user" @click="router.push('/user-profile-page')" v-else label="Profile"/>
         </template>
     </Menubar>
 </template>
@@ -20,6 +16,7 @@ import Menubar from 'primevue/menubar'
 import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { useAuthStore } from '@/stores/auth'
+import 'primeicons/primeicons.css';
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -41,11 +38,6 @@ const items = ref([
         icon: 'pi pi-key',
         command: () => router.push('/create-api-key'),
     },
-    {
-        label: 'User Profile',
-        icon: 'pi pi-user',
-        command: () => router.push('/user-profile-page'),
-    }
 ])
 </script>
 
