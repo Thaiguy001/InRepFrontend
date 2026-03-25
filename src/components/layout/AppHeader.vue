@@ -18,6 +18,7 @@
 import { ref } from 'vue'
 import Menubar from 'primevue/menubar'
 import { useRouter } from 'vue-router'
+import 'primeicons/primeicons.css';
 import Button from 'primevue/button'
 import { useAuthStore } from '@/stores/auth'
 
@@ -40,6 +41,11 @@ const items = ref([
         label: 'Create API Key',
         icon: 'pi pi-key',
         command: () => router.push('/create-api-key'),
+    },
+    {
+        label: 'User Management',
+        icon: 'pi pi-users',
+        command: () => router.push('/admin/user-management'),
     }
 ])
 </script>
