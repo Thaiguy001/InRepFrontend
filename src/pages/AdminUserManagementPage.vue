@@ -20,7 +20,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import ConfirmDialog from 'primevue/confirmdialog'
 import UserTable from '@/components/UserTable.vue'
 import EditUserModal from '@/components/AdminEditUserModal.vue'
 import { UserService } from '@/api'
@@ -51,7 +50,7 @@ async function fetchUsers() {
     state.users = await UserService.getApiV1Users() as User[]
   } catch (error: any) {
     state.error = error?.message || 'Failed to load users'
-    showError(state.error)
+    showError('Error fetching users: ' + state.error)
   } finally {
     state.loading = false
   }
@@ -62,13 +61,13 @@ function showEditUser(user: User) {
   editDialog.visible = true
 }
 
-async function handleEditSave(payload: { role: string }) {
+async function handleEditSave(payload: { role: string; team_id: number | null }) {
   if (!editDialog.user?.id) return
   editDialog.saving = true
   try {
     const updated = await UserService.putApiV1Users(editDialog.user.id, {
       role: payload.role,
-      // TODO: Add team_id here once Teams API is implemented
+      team_id: payload.team_id,
     }) as User
 
     const idx = state.users.findIndex(u => u.id === updated.id)
@@ -77,7 +76,7 @@ async function handleEditSave(payload: { role: string }) {
     editDialog.visible = false
     showSuccess(`${editDialog.user.username ?? 'User'} updated successfully`)
   } catch (error: any) {
-    showError(error?.message || 'Failed to update user')
+    showError('Error updating user: ' + (error?.message || 'Failed to update user'))
   } finally {
     editDialog.saving = false
   }
