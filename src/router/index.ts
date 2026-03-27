@@ -30,6 +30,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/service/:id',
+      name: 'service',
+      component: () => import('../pages/SingleServicePage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
       path: '/callback',
       name: 'callback',
       component: () => import('../pages/CallbackPage.vue'),
