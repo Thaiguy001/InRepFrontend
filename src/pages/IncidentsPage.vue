@@ -1,92 +1,119 @@
 <template>
-    <div class="controls container">
-        <h1>Incidents</h1>
-        <div class="filter-row">
+    <div class="container">
+        <div class="header-section">
+            <h1>Incidents</h1>
 
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <Checkbox v-model="showUnResolved" binary inputId="unresolved" />
-                    <label for="unresolved">Unresolved</label>
+            <div class="filter-panel">
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <Checkbox v-model="showUnResolved" binary inputId="unresolved" />
+                        <label for="unresolved">Unresolved</label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <Checkbox v-model="showResolved" binary inputId="resolved" />
+                        <label for="resolved">Resolved</label>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <Checkbox v-model="showAcknowledged" binary inputId="acknowledged" />
+                        <label for="acknowledged">Acknowledged</label>
+                    </div>
                 </div>
 
-                <div class="checkbox-item">
-                    <Checkbox v-model="showResolved" binary inputId="resolved" />
-                    <label for="resolved">Resolved</label>
-                </div>
+                <div class="search-sort">
+                    <InputText
+                        v-model="searchTerm"
+                        placeholder="Search incidents..."
+                        class="control-input"
+                    />
 
-                <div class="checkbox-item">
-                    <Checkbox v-model="showAcknowledged" binary inputId="acknowledged" />
-                    <label for="acknowledged">Acknowledged</label>
+                    <Select
+                        v-model="sortSeverity"
+                        :options="severitySortOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Sort by severity"
+                        class="control-input"
+                    />
                 </div>
             </div>
-
-            <div class="search-sort">
-
-                <InputText v-model="searchTerm" placeholder="Search incidents..." class="control-input" />
-
-                <Select v-model="sortSeverity" :options="severitySortOptions" optionLabel="label" optionValue="value"
-                    placeholder="Sort by severity" class="control-input" />
-
-            </div>
-
         </div>
 
-    </div>
+        <div v-if="state.loading" class="loading">
+            <ProgressSpinner />
+        </div>
 
-    <div class="testPage">
-        <div class="incident-list" v-if="!state.loading">
-            <div v-for="incident in filteredIncidents" :key="incident.id">
-                <Card class="mb-3 issue-card" @click="openIncident(incident.id)">
+        <Message v-else-if="state.error" severity="error">
+            {{ state.error }}
+        </Message>
 
-                    <template #title>
-                        <div class="row">
+        <div v-else-if="filteredIncidents.length === 0" class="empty-state">
+            No incidents match the current filters.
+        </div>
+
+        <div v-else class="incident-list">
+            <Card
+                v-for="incident in filteredIncidents"
+                :key="incident.id"
+                class="issue-card compact-card"
+                @click="openIncident(incident.id)"
+            >
+                <template #title>
+                    <div class="card-header">
+                        <div class="incident-main">
+                            <!-- Icon moved here -->
                             <span class="icon">
-                                <i v-if="incident.status === 'resolved'" class="pi pi-check-circle green"></i>
-                                <i v-if="incident.status === 'triggered'" class="pi pi-minus-circle red"></i>
+                                <i v-if="incident.status === 'resolved'" class="pi pi-check-circle icon-resolved"></i>
+                                <i v-else-if="incident.status === 'triggered'" class="pi pi-minus-circle icon-triggered"></i>
+                                <i v-else-if="incident.status === 'acknowledged'" class="pi pi-clock icon-acknowledged"></i>
                             </span>
-                            <span>{{ incident.summary }}</span>
-                            <span class="right" :class="severityClass(incident.severity)">
-                                {{ incident.severity }}
-                            </span>
-                        </div>
-                    </template>
 
-                    <template #content>
-                        <div class="incident-meta">
-                            <span class="issue-number">#{{ incident.id }}</span>
-                            <span v-if="incident.status === 'triggered'">
-                                reported at {{ formatDate(incident.created_at) }}
-                            </span>
-                            <span v-if="incident.status === 'resolved'">
-                                resolved at {{ formatDate(incident.resolved_at!) }}
-                            </span>
+                            <div class="incident-text">
+                            <span class="incident-summary">{{ incident.summary }}</span>
+                            <div class="incident-meta">
+                                <span class="issue-number">#{{ incident.id }}</span>
+                                <span class="status-pill" :class="statusClass(incident.status)">
+                                {{ incident.status }}
+                                </span>
+                                <span v-if="incident.status === 'triggered'">
+                                Reported {{ formatDate(incident.created_at) }}
+                                </span>
+                                <span v-if="incident.status === 'resolved'">
+                                Resolved {{ formatDate(incident.resolved_at!) }}
+                                </span>
+                                <span v-if="incident.status === 'acknowledged'">
+                                Acknowledged
+                                </span>
+                            </div>
+                            </div>
                         </div>
-                    </template>
 
-                </Card>
-            </div>
-        </div>
-        <div v-else-if="state.error">{{ state.error }}</div>
-        <div v-else>
-            <p>Loading...</p>
+                        <span class="severity-pill" :class="severityClass(incident.severity)">
+                            {{ incident.severity }}
+                        </span>
+                        </div>
+                </template>
+            </Card>
         </div>
     </div>
 </template>
 
-
 <script setup lang="ts">
 import Card from 'primevue/card'
-import { onMounted, ref, reactive } from 'vue'
+import { onMounted, ref, reactive, computed } from 'vue'
 import { IncidentService } from '@/api'
-import { definePreset } from '@primevue/themes'
+import { useRouter } from "vue-router"
 import Select from 'primevue/select'
-import { computed } from 'vue'
 import InputText from 'primevue/inputtext'
 import Checkbox from 'primevue/checkbox'
+import Message from 'primevue/message'
+import ProgressSpinner from 'primevue/progressspinner'
 import 'primeicons/primeicons.css'
 
+const router = useRouter()
+
 onMounted(() => {
-    console.log('AboutView mounted')
     fetchIncidents()
 })
 
@@ -96,13 +123,12 @@ const state = reactive({
     error: null as string | null,
 })
 
-/* Sorting */
+/* Filtering / Sorting */
 
 const showResolved = ref(false)
 const showUnResolved = ref(true)
 const showAcknowledged = ref(true)
 const searchTerm = ref('')
-
 const sortSeverity = ref('none')
 
 const severitySortOptions = [
@@ -133,6 +159,19 @@ function severityClass(severity: string) {
     }
 }
 
+function statusClass(status: string) {
+    switch (status?.toLowerCase()) {
+        case 'resolved':
+            return 'status-resolved'
+        case 'triggered':
+            return 'status-triggered'
+        case 'acknowledged':
+            return 'status-acknowledged'
+        default:
+            return ''
+    }
+}
+
 const filteredIncidents = computed(() => {
     let result = incidents.value.filter((incident) => {
         const statusMatch =
@@ -148,12 +187,12 @@ const filteredIncidents = computed(() => {
     })
 
     if (sortSeverity.value !== 'none') {
-        result = result.sort((a, b) => {
-            const aRank = severityRank[a.severity.toLowerCase()] ?? 0;
-            const bRank = severityRank[b.severity.toLowerCase()] ?? 0;
-            const diff = aRank - bRank;
-            return sortSeverity.value === 'asc' ? diff : -diff;
-        });
+        result = [...result].sort((a, b) => {
+            const aRank = severityRank[a.severity.toLowerCase()] ?? 0
+            const bRank = severityRank[b.severity.toLowerCase()] ?? 0
+            const diff = aRank - bRank
+            return sortSeverity.value === 'asc' ? diff : -diff
+        })
     }
 
     return result
@@ -162,10 +201,6 @@ const filteredIncidents = computed(() => {
 /* Incidents */
 
 const incidents = ref<Incident[]>([])
-
-interface IncidentsResponse {
-    incidents: Incident[]
-}
 
 interface Incident {
     id: number
@@ -183,7 +218,7 @@ interface Incident {
 }
 
 function openIncident(incident_id: number) {
-    window.open(`/incident/${incident_id}`, '_blank')?.focus()
+    router.push(`/incident/${incident_id}`)
 }
 
 async function fetchIncidents() {
@@ -192,10 +227,11 @@ async function fetchIncidents() {
 
     try {
         const response = await IncidentService.getApiV1Incidents()
-        console.log('Received incidents:', response)
 
         if (Array.isArray(response) && response.length > 0) {
             incidents.value = response as unknown as Incident[]
+        } else if (Array.isArray(response) && response.length === 0) {
+            incidents.value = []
         } else if ('message' in response) {
             state.error = response.message ?? 'There are no incidents'
         }
@@ -211,10 +247,10 @@ async function fetchIncidents() {
 const formatter = new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',
     timeStyle: 'short'
-});
+})
 
 function formatDate(ts: any) {
-    return formatter.format(new Date(ts));
+    return formatter.format(new Date(ts))
 }
 </script>
 
@@ -222,34 +258,45 @@ function formatDate(ts: any) {
 .container {
     max-width: 900px;
     margin: auto;
+    padding: 0 0 24px;
 }
 
-/* Sorting controls */
+/*  HEADER / FILTERS  */
 
-.controls {
+.header-section {
     margin-bottom: 18px;
 }
 
-.filter-row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.header-section h1 {
+    margin-bottom: 14px;
+    color: var(--p-text-color);
+}
+
+.filter-panel {
+    border: 1px solid var(--p-content-border-color);
+    background: var(--p-content-background);
+    border-radius: 10px;
+    padding: 14px 16px;
 }
 
 .checkbox-group {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 14px;
 }
 
 .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    color: var(--p-text-color);
     font-size: 0.95rem;
 }
 
 .search-sort {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
 }
 
@@ -257,75 +304,222 @@ function formatDate(ts: any) {
     width: 220px;
 }
 
-/* incident cards */
+.control-input :deep(.p-inputtext),
+.control-input :deep(.p-select) {
+    width: 100%;
+}
+
+/*  STATES  */
+
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.empty-state {
+    color: var(--p-text-muted-color);
+    padding: 24px 0;
+    text-align: center;
+}
+
+/*  INCIDENT LIST  */
 
 .incident-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 20px;
+    gap: 8px;
 }
 
 .issue-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    transition: all 0.18s ease;
+    border: 1px solid #2f3745;
+    border-radius: 12px;
     cursor: pointer;
+    background: #1b1f27;
+    color: #f3f4f6;
+    transition: all 0.15s ease;
 }
 
 .issue-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
 
-/* icons */
+.compact-card :deep(.p-card-body) {
+    padding: 0.55rem 0.9rem;
+}
 
-.green {
+.compact-card :deep(.p-card-content) {
+    padding: 0;
+}
+
+.compact-card :deep(.p-card-title) {
+    margin: 0;
+}
+
+/* ---------- CARD CONTENT ---------- */
+
+.card-header {
+    display: flex;
+    align-items: center; /* keeps left + right vertically centered */
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 32px;
+}
+
+.incident-main {
+    display: flex;
+    align-items: center; /* centers icon against whole text block */
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    flex: 0 0 20px;
+    width: 20px;
+    min-width: 20px;
+    height: 100%;
+    font-size: 1.05rem;
+}
+
+.icon i {
+    line-height: 1;
+    display: block;
+}
+
+.status-icon {
+    flex: 0 0 auto;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    font-size: 1rem;
+}
+
+.icon-resolved {
     color: #22c55e;
 }
 
-.red {
+.icon-triggered {
     color: #ef4444;
 }
 
-.row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.icon-acknowledged {
+    color: #f59e0b;
 }
 
-.right {
-    margin-left: auto;
+.incident-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+}
+
+.incident-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.incident-summary {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .incident-meta {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.9em;
-    color: #6b7280;
-    margin-top: 6px;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    font-size: 0.88rem;
+    color: var(--p-text-muted-color);
 }
 
-/* severity colors */
+.issue-number {
+    font-weight: 600;
+    color: var(--p-text-color);
+}
+
+/* ---------- PILLS ---------- */
+
+.severity-pill,
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.18rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
 
 .severity-critical {
+    background: rgba(239, 68, 68, 0.14);
     color: #ef4444;
-    font-weight: 600;
 }
 
 .severity-high {
+    background: rgba(249, 115, 22, 0.14);
     color: #f97316;
-    font-weight: 600;
 }
 
 .severity-medium {
+    background: rgba(234, 179, 8, 0.14);
     color: #eab308;
-    font-weight: 600;
 }
 
 .severity-low {
+    background: rgba(56, 189, 248, 0.14);
     color: #38bdf8;
-    font-weight: 600;
+}
+
+.status-resolved {
+    background: rgba(34, 197, 94, 0.14);
+    color: #22c55e;
+}
+
+.status-triggered {
+    background: rgba(239, 68, 68, 0.14);
+    color: #ef4444;
+}
+
+.status-acknowledged {
+    background: rgba(245, 158, 11, 0.14);
+    color: #f59e0b;
+}
+
+/*  RESPONSIVE  */
+
+@media (max-width: 640px) {
+    .search-sort {
+        flex-direction: column;
+    }
+
+    .control-input {
+        width: 100%;
+    }
+
+    .incident-topline {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .incident-meta {
+        flex-direction: column;
+        gap: 6px;
+    }
 }
 </style>
