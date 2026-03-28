@@ -62,7 +62,6 @@
                 <template #title>
                     <div class="card-header">
                         <div class="incident-main">
-                            <!-- Icon moved here -->
                             <span class="icon">
                                 <i v-if="incident.status === 'resolved'" class="pi pi-check-circle icon-resolved"></i>
                                 <i v-else-if="incident.status === 'triggered'" class="pi pi-minus-circle icon-triggered"></i>
@@ -357,7 +356,7 @@ function formatDate(ts: any) {
     margin: 0;
 }
 
-/* ---------- CARD CONTENT ---------- */
+/*  CARD CONTENT  */
 
 .card-header {
     display: flex;
@@ -452,7 +451,7 @@ function formatDate(ts: any) {
     color: var(--p-text-color);
 }
 
-/* ---------- PILLS ---------- */
+/*  PILLS  */
 
 .severity-pill,
 .status-pill {
