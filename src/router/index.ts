@@ -49,6 +49,15 @@ const router = createRouter({
       component: () => import('../pages/UserProfilePage.vue'),
     },
     {
+      path: '/admin/user-management',
+      name: 'user-management',
+      component: () => import('../pages/AdminUserManagementPage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notfound',
       component: () => import('../pages/Error/NotFound.vue'),

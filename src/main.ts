@@ -9,6 +9,8 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { ToastService } from 'primevue'
+import ConfirmationService from 'primevue/confirmationservice'
+import Tooltip from 'primevue/tooltip'
 
 const app = createApp(App)
 
@@ -42,6 +44,9 @@ app.use(pinia)
 
 app.use(router)
 app.use(ToastService)
+app.use(ConfirmationService)
+
+app.directive('tooltip', Tooltip)
 
 const authStore = useAuthStore()
 authStore.init()

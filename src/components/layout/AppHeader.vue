@@ -30,6 +30,7 @@ import Menubar from 'primevue/menubar'
 import Menu from 'primevue/menu'
 import Button from 'primevue/button'
 import { useRouter } from 'vue-router'
+import 'primeicons/primeicons.css';
 import { useAuthStore } from '@/stores/auth'
 import 'primeicons/primeicons.css'
 
@@ -60,6 +61,13 @@ const items = computed(() => {
             command: () => router.push('/services-page')
         },
     ]
+    if (auth.userRole === 'Administrator') {
+        nav.push({
+            label: 'User Management',
+            icon: 'pi pi-users',
+            command: () => router.push('/admin/user-management'),
+        })
+    }
     return nav
 })
 
