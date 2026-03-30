@@ -7,7 +7,6 @@ export default function authGuard(
   next: NavigationGuardNext,
 ) {
   const auth = useAuthStore()
-  console.log('user:', auth.user?.profile)
 
   if (to.meta.requiresAuth && !auth.user) {
     auth.login()
