@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
@@ -8,6 +9,8 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { ToastService } from 'primevue'
+import ConfirmationService from 'primevue/confirmationservice'
+import Tooltip from 'primevue/tooltip'
 
 const app = createApp(App)
 
@@ -35,9 +38,15 @@ app.use(PrimeVue, {
   },
 })
 
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+app.use(pinia)
+
 app.use(router)
 app.use(ToastService)
+app.use(ConfirmationService)
+
+app.directive('tooltip', Tooltip)
 
 const authStore = useAuthStore()
 authStore.init()
