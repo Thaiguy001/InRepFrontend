@@ -1,44 +1,96 @@
 <template>
     <div class="container">
         <div class="header-section">
-            <h1>Incidents</h1>
+            <div>
+                <h1>Incidents</h1>
+            </div>
+        </div>
 
-            <div class="filter-panel">
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <Checkbox v-model="showUnResolved" binary inputId="unresolved" />
-                        <label for="unresolved">Unresolved</label>
-                    </div>
-
-                    <div class="checkbox-item">
-                        <Checkbox v-model="showResolved" binary inputId="resolved" />
-                        <label for="resolved">Resolved</label>
-                    </div>
-
-                    <div class="checkbox-item">
-                        <Checkbox v-model="showAcknowledged" binary inputId="acknowledged" />
-                        <label for="acknowledged">Acknowledged</label>
-                    </div>
+        <Card class="filter-card compact-card">
+            <template #title>
+                <div class="filter-header">
+                    <span>Filters & Sorting</span>
                 </div>
+            </template>
 
-                <div class="search-sort">
+            <template #content>
+                <div class="filter-top-row">
                     <InputText
                         v-model="searchTerm"
                         placeholder="Search incidents..."
-                        class="control-input"
+                        class="control-input search-input"
                     />
 
                     <Select
-                        v-model="sortSeverity"
-                        :options="severitySortOptions"
+                        v-model="sortMode"
+                        :options="sortOptions"
                         optionLabel="label"
                         optionValue="value"
-                        placeholder="Sort by severity"
+                        placeholder="Sort incidents"
                         class="control-input"
                     />
+                    <br>
+                    <Button
+                        label="Clear"
+                        icon="pi pi-filter-slash"
+                        severity="secondary"
+                        outlined
+                        class="sort-button control-input-item"
+                        @click="resetFilters"
+                    />
+                    <Button
+                        :label="showAdvancedFilters ? 'Hide Advanced' : 'Advanced Filters'"
+                        :icon="showAdvancedFilters ? 'pi pi-chevron-up' : 'pi pi-sliders-h'"
+                        text
+                        severity="secondary"
+                        class="sort-button control-input-item"
+                        @click="showAdvancedFilters = !showAdvancedFilters"
+                    />
                 </div>
-            </div>
-        </div>
+
+                <div v-if="showAdvancedFilters" class="advanced-panel">
+                    <div class="advanced-group">
+                        <span class="group-title">Severity</span>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <Checkbox v-model="severityFilters.critical" binary inputId="sev-critical" />
+                                <label for="sev-critical">Critical</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <Checkbox v-model="severityFilters.high" binary inputId="sev-high" />
+                                <label for="sev-high">High</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <Checkbox v-model="severityFilters.medium" binary inputId="sev-medium" />
+                                <label for="sev-medium">Medium</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <Checkbox v-model="severityFilters.low" binary inputId="sev-low" />
+                                <label for="sev-low">Low</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="advanced-group">
+                        <span class="group-title">Status</span>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <Checkbox v-model="statusFilters.triggered" binary inputId="status-triggered" />
+                                <label for="status-triggered">Triggered</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <Checkbox v-model="statusFilters.acknowledged" binary inputId="status-ack" />
+                                <label for="status-ack">Acknowledged</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <Checkbox v-model="statusFilters.resolved" binary inputId="status-resolved" />
+                                <label for="status-resolved">Resolved</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </Card>
 
         <div v-if="state.loading" class="loading">
             <ProgressSpinner />
@@ -63,35 +115,52 @@
                     <div class="card-header">
                         <div class="incident-main">
                             <span class="icon">
-                                <i v-if="incident.status === 'resolved'" class="pi pi-check-circle icon-resolved"></i>
-                                <i v-else-if="incident.status === 'triggered'" class="pi pi-minus-circle icon-triggered"></i>
-                                <i v-else-if="incident.status === 'acknowledged'" class="pi pi-clock icon-acknowledged"></i>
+                                <i v-if="incident.status === 'resolved'" class="pi pi-check-circle status-resolved"></i>
+                                <i v-else-if="incident.status === 'triggered'" class="pi pi-minus-circle status-triggered"></i>
+                                <i v-else-if="incident.status === 'acknowledged'" class="pi pi-clock status-acknowledged"></i>
                             </span>
 
                             <div class="incident-text">
-                            <span class="incident-summary">{{ incident.summary }}</span>
-                            <div class="incident-meta">
-                                <span class="issue-number">#{{ incident.id }}</span>
-                                <span class="status-pill" :class="statusClass(incident.status)">
-                                {{ incident.status }}
-                                </span>
-                                <span v-if="incident.status === 'triggered'">
-                                Reported {{ formatDate(incident.created_at) }}
-                                </span>
-                                <span v-if="incident.status === 'resolved'">
-                                Resolved {{ formatDate(incident.resolved_at!) }}
-                                </span>
-                                <span v-if="incident.status === 'acknowledged'">
-                                Acknowledged
-                                </span>
-                            </div>
+                                <div class="incident-topline">
+                                    <span class="incident-summary">{{ incident.summary }}</span>
+                                </div>
+
+                                <div class="incident-meta">
+                                    <span class="issue-number">#{{ incident.id }}</span>
+
+                                    <span class="status-pill" :class="statusClass(incident.status)">
+                                        {{ incident.status }}
+                                    </span>
+
+                                    <span>
+                                        Triggered {{ formatDate(incident.created_at) }}
+                                    </span>
+
+                                    <span v-if="getLastActionDate(incident)">
+                                        Last action {{ formatDate(getLastActionDate(incident)) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        <span class="severity-pill" :class="severityClass(incident.severity)">
-                            {{ incident.severity }}
-                        </span>
+                        <div class="incident-right">
+                            <span class="severity-pill" :class="severityClass(incident.severity)">
+                                {{ incident.severity }}
+                            </span>
+                            <span class="incident-meta">
+                                <Button
+                                    v-if="incident.service_id && serviceMap[incident.service_id]"
+                                    text
+                                    rounded
+                                    severity="secondary"
+                                    class="service-link-button"
+                                    :label="serviceMap[incident.service_id]?.name"
+                                    @click.stop="openServiceFromIncident(incident.service_id)"
+                                />
+                            </span>
+                            
                         </div>
+                    </div>
                 </template>
             </Card>
         </div>
@@ -101,39 +170,55 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import { onMounted, ref, reactive, computed } from 'vue'
-import { IncidentService } from '@/api'
+import { IncidentService, ServiceService } from '@/api'
 import { useRouter } from "vue-router"
 import Select from 'primevue/select'
 import InputText from 'primevue/inputtext'
 import Checkbox from 'primevue/checkbox'
 import Message from 'primevue/message'
 import ProgressSpinner from 'primevue/progressspinner'
+import Button from 'primevue/button'
 import 'primeicons/primeicons.css'
 
 const router = useRouter()
 
 onMounted(() => {
     fetchIncidents()
+    fetchServices()
 })
 
 const state = reactive({
-    testMessage: null as string | null,
     loading: false,
     error: null as string | null,
 })
 
-/* Filtering / Sorting */
+/* Sorting values */
 
-const showResolved = ref(false)
-const showUnResolved = ref(true)
-const showAcknowledged = ref(true)
 const searchTerm = ref('')
-const sortSeverity = ref('none')
+const showAdvancedFilters = ref(false)
 
-const severitySortOptions = [
-    { label: 'No Sorting', value: 'none' },
-    { label: 'Severity (High → Low)', value: 'desc' },
-    { label: 'Severity (Low → High)', value: 'asc' }
+const severityFilters = reactive({
+    critical: true,
+    high: true,
+    medium: true,
+    low: true
+})
+
+const statusFilters = reactive({
+    triggered: true,
+    acknowledged: true,
+    resolved: true
+})
+
+const sortMode = ref('triggered_desc')
+
+const sortOptions = [
+    { label: 'Newest Triggered First', value: 'triggered_desc' },
+    { label: 'Oldest Triggered First', value: 'triggered_asc' },
+    { label: 'Last Action (Newest First)', value: 'last_action_desc' },
+    { label: 'Last Action (Oldest First)', value: 'last_action_asc' },
+    { label: 'Severity (High → Low)', value: 'severity_desc' },
+    { label: 'Severity (Low → High)', value: 'severity_asc' }
 ]
 
 const severityRank: Record<string, number> = {
@@ -141,6 +226,140 @@ const severityRank: Record<string, number> = {
     high: 3,
     medium: 2,
     low: 1
+}
+
+/* Incidents */
+
+const incidents = ref<Incident[]>([])
+
+interface Incident {
+    id: number
+    summary: string
+    severity: string
+    status: string
+    created_at: number
+    service_id: number
+    acknowledged_at: number | null
+    resolved_at: number | null
+    resolution_notes: string | null
+    assigned_to: number | null
+    acknowledged_by: number | null
+    resolved_by: number | null
+}
+
+/* Services */
+
+interface Service {
+    id: number
+    name: string
+    description: string
+}
+
+const services = ref<Service[]>([])
+
+const serviceMap = computed<Record<number, Service>>(() => {
+    return services.value.reduce((acc, service) => {
+        acc[service.id] = service
+        return acc
+    }, {} as Record<number, Service>)
+})
+
+async function fetchServices() {
+    try {
+        const response = await ServiceService.getApiV1Service()
+
+        if (Array.isArray(response)) {
+            services.value = response.filter((s) => s.id !== undefined) as Service[]
+        } else {
+            services.value = []
+        }
+    } catch (error) {
+        console.error('Failed to load services:', error)
+        services.value = []
+    }
+}
+
+function getServiceName(serviceId: number) {
+    const service = services.value.find(s => s.id === serviceId)
+    return service?.name ?? 'Unknown Service'
+}
+
+/* Filtering + Sorting */
+
+const filteredIncidents = computed(() => {
+    let result = incidents.value.filter((incident) => {
+        const sev = incident.severity.toLowerCase()
+        const status = incident.status.toLowerCase()
+
+        const severityMatch =
+            (sev === 'critical' && severityFilters.critical) ||
+            (sev === 'high' && severityFilters.high) ||
+            (sev === 'medium' && severityFilters.medium) ||
+            (sev === 'low' && severityFilters.low)
+
+        const statusMatch =
+            (status === 'triggered' && statusFilters.triggered) ||
+            (status === 'acknowledged' && statusFilters.acknowledged) ||
+            (status === 'resolved' && statusFilters.resolved)
+
+        const searchMatch =
+            !searchTerm.value ||
+            incident.summary.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+            getServiceName(incident.service_id).toLowerCase().includes(searchTerm.value.toLowerCase())
+
+        return severityMatch && statusMatch && searchMatch
+    })
+
+    result = [...result].sort((a, b) => {
+        switch (sortMode.value) {
+            case 'severity_asc':
+                return (severityRank[a.severity.toLowerCase()] ?? 0) - (severityRank[b.severity.toLowerCase()] ?? 0)
+
+            case 'severity_desc':
+                return (severityRank[b.severity.toLowerCase()] ?? 0) - (severityRank[a.severity.toLowerCase()] ?? 0)
+
+            case 'triggered_asc':
+                return a.created_at - b.created_at
+
+            case 'triggered_desc':
+                return b.created_at - a.created_at
+
+            case 'last_action_asc':
+                return getSortableLastAction(a) - getSortableLastAction(b)
+
+            case 'last_action_desc':
+                return getSortableLastAction(b) - getSortableLastAction(a)
+
+            default:
+                return 0
+        }
+    })
+
+    return result
+})
+
+function getLastActionDate(incident: Incident) {
+    return incident.resolved_at ?? incident.acknowledged_at ?? incident.created_at
+}
+
+function getSortableLastAction(incident: Incident) {
+    return Number(getLastActionDate(incident) ?? 0)
+}
+
+function resetFilters() {
+    searchTerm.value = ''
+    showAdvancedFilters.value = false
+
+    severityFilters.critical = true
+    severityFilters.high = true
+    severityFilters.medium = true
+    severityFilters.low = true
+
+    statusFilters.triggered = true
+    statusFilters.acknowledged = true
+    statusFilters.resolved = true
+
+    sortMode.value = 'triggered_desc'
 }
 
 function severityClass(severity: string) {
@@ -171,54 +390,17 @@ function statusClass(status: string) {
     }
 }
 
-const filteredIncidents = computed(() => {
-    let result = incidents.value.filter((incident) => {
-        const statusMatch =
-            (incident.status === 'triggered' && showUnResolved.value) ||
-            (incident.status === 'resolved' && showResolved.value) ||
-            (incident.status === 'acknowledged' && showAcknowledged.value)
-
-        const searchMatch =
-            !searchTerm.value ||
-            incident.summary.toLowerCase().includes(searchTerm.value.toLowerCase())
-
-        return statusMatch && searchMatch
-    })
-
-    if (sortSeverity.value !== 'none') {
-        result = [...result].sort((a, b) => {
-            const aRank = severityRank[a.severity.toLowerCase()] ?? 0
-            const bRank = severityRank[b.severity.toLowerCase()] ?? 0
-            const diff = aRank - bRank
-            return sortSeverity.value === 'asc' ? diff : -diff
-        })
-    }
-
-    return result
-})
-
-/* Incidents */
-
-const incidents = ref<Incident[]>([])
-
-interface Incident {
-    id: number
-    summary: string
-    severity: string
-    status: string
-    created_at: number
-    service_id: number
-    acknowledged_at: number | null
-    resolved_at: number | null
-    resolution_notes: string | null
-    assigned_to: number | null
-    acknowledged_by: number | null
-    resolved_by: number | null
-}
+/* Navigation */
 
 function openIncident(incident_id: number) {
     router.push(`/incident/${incident_id}`)
 }
+
+function openServiceFromIncident(serviceId: number) {
+    router.push(`/service/${serviceId}`)
+}
+
+/* Fetching Incidents */
 
 async function fetchIncidents() {
     state.loading = true
@@ -227,10 +409,8 @@ async function fetchIncidents() {
     try {
         const response = await IncidentService.getApiV1Incidents()
 
-        if (Array.isArray(response) && response.length > 0) {
+        if (Array.isArray(response)) {
             incidents.value = response as unknown as Incident[]
-        } else if (Array.isArray(response) && response.length === 0) {
-            incidents.value = []
         } else if ('message' in response) {
             state.error = response.message ?? 'There are no incidents'
         }
@@ -260,7 +440,7 @@ function formatDate(ts: any) {
     padding: 0 0 24px;
 }
 
-/*  HEADER / FILTERS  */
+/*  Header / Filters  */
 
 .header-section {
     margin-bottom: 18px;
@@ -276,6 +456,10 @@ function formatDate(ts: any) {
     background: var(--p-content-background);
     border-radius: 10px;
     padding: 14px 16px;
+}
+
+.filter-card {
+    margin-bottom: 10px;
 }
 
 .checkbox-group {
@@ -308,7 +492,12 @@ function formatDate(ts: any) {
     width: 100%;
 }
 
-/*  STATES  */
+.control-input-item {
+    align-items: center;
+    gap: 8px;
+}
+
+/* States */
 
 .loading {
     display: flex;
@@ -322,7 +511,7 @@ function formatDate(ts: any) {
     text-align: center;
 }
 
-/*  INCIDENT LIST  */
+/* Incident List */
 
 .incident-list {
     display: flex;
@@ -356,7 +545,7 @@ function formatDate(ts: any) {
     margin: 0;
 }
 
-/*  CARD CONTENT  */
+/*  Card Content  */
 
 .card-header {
     display: flex;
@@ -451,7 +640,78 @@ function formatDate(ts: any) {
     color: var(--p-text-color);
 }
 
-/*  PILLS  */
+.card-header {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+}
+
+.incident-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.incident-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.incident-topline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin-bottom: 6px;
+}
+
+.incident-summary {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+    overflow-wrap: anywhere;
+}
+
+.incident-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.severity-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+}
+
+.service-link-button {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.85rem;
+    max-width: 220px;
+}
+
+.service-link-button :deep(.p-button-label) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*  Pills  */
 
 .severity-pill,
 .status-pill {
@@ -500,7 +760,12 @@ function formatDate(ts: any) {
     color: #f59e0b;
 }
 
-/*  RESPONSIVE  */
+.incident-service {
+    font-size: 0.9rem;
+    color: var(--p-text-muted-color);
+    margin-top: 2px;
+    font-style: italic;
+}
 
 @media (max-width: 640px) {
     .search-sort {
