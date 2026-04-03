@@ -83,7 +83,15 @@ export function useTeamsData() {
             const result = await TeamsService.postApiV1TeamsQuery(query)
             if (result && typeof result === 'object' && 'data' in result) {
                 teams.value = Array.isArray(result.data) ? [...result.data] : []
-                total.value = typeof result.total === 'number' ? result.total : teams.value.length
+
+                const apiTotal = typeof result.total === 'number' ? result.total : undefined
+                const minimumTotal = teams.value.length
+                if (apiTotal === undefined) {
+                    total.value = minimumTotal
+                } else {
+                    // Keep the reported total when valid, but avoid ending with 0 when rows are returned.
+                    total.value = apiTotal > minimumTotal ? apiTotal : minimumTotal
+                }
             } else if (Array.isArray(result)) {
                 // fallback for older behavior if API returns an array accidentally
                 teams.value = [...(result as Team[])]

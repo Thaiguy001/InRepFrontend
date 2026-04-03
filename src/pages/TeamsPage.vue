@@ -8,10 +8,17 @@
         </div>
         <Button icon="pi pi-plus" label="Add Team" @click="openCreateDialog" class="add-button" />
       </div>
-
       <div class="content-card">
-        <DataTable :value="teams" paginator :rows="pageSize" :totalRecords="total" :first="first" @page="onPageChange"
-          responsiveLayout="scroll" class="teams-table" stripedRows showGridlines :loading="loading">
+        <DataTable :value="teams" 
+          paginator 
+          :rows="pageSize" 
+          :totalRecords="total" 
+          :first="first" 
+          @page="onPageChange"
+          responsiveLayout="scroll" 
+          class="teams-table" stripedRows showGridlines 
+          :loading="loading"
+          :lazy="true">
           <Column field="name" sortable class="name-column">
             <template #header>
               <div class="column-header">
@@ -21,7 +28,6 @@
               </div>
             </template>
           </Column>
-
           <Column field="description" class="description-column">
             <template #header>
               <div class="column-header">
@@ -31,7 +37,6 @@
               </div>
             </template>
           </Column>
-
           <Column header="Actions" class="actions-column">
             <template #body="slotProps">
               <div class="action-buttons">
@@ -42,7 +47,6 @@
               </div>
             </template>
           </Column>
-
           <template #empty>
             <div class="empty-state">
               <div class="empty-icon">
@@ -54,7 +58,6 @@
           </template>
         </DataTable>
       </div>
-
       <!-- Modern Team Modal -->
       <Modal v-model:visible="dialogVisible" :title="isEditMode ? 'Edit Team' : 'Create New Team'"
         :subtitle="isEditMode ? 'Update team details' : 'Add a new team to your workspace'"
@@ -66,22 +69,19 @@
           <!-- Team Name Field -->
           <FormInput id="name" label="Team Name" icon="pi pi-tag" v-model="formData.name"
             placeholder="Enter team name..." :error="errors.name" :required="true" />
-
           <!-- Description Field -->
           <FormTextarea id="description" label="Description" icon="pi pi-align-left" v-model="formData.description"
             placeholder="Describe your team's purpose and goals..." :error="errors.description" :rows="3" />
         </form>
       </Modal>
-
       <ConfirmDialog group="delete" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import Card from 'primevue/card'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -90,8 +90,7 @@ import Modal from '@/components/common/Modal.vue'
 import FormInput from '@/components/common/FormInput.vue'
 import FormTextarea from '@/components/common/FormTextarea.vue'
 import ConfirmDialog from 'primevue/confirmdialog'
-import Tooltip from 'primevue/tooltip'
-import type { Team, Query, Filter } from '@/api'
+import type { Team, Query } from '@/api'
 import { useTeamsData, useTeamsForm } from '@/composables/useTeams'
 
 // Composables
@@ -112,65 +111,8 @@ const filters = ref({
   description: '',
 })
 
-// Methods
-function openCreateDialog() {
-  isEditMode.value = false
-  resetForm()
-  dialogVisible.value = true
-}
-
-function openEditDialog(team: Team) {
-  isEditMode.value = true
-  setFormData(team)
-  dialogVisible.value = true
-}
-
-async function submitForm() {
-  if (!validate()) {
-    return
-  }
-
-  submitting.value = true
-  try {
-    const values = getFormValues()
-    if (isEditMode.value && values.id) {
-      const { id, ...teamData } = values
-      await updateTeam(id, teamData)
-    } else {
-      await createTeam(values)
-    }
-
-    dialogVisible.value = false
-    resetForm()
-    // Reapply filters after create/update
-    applyFilters()
-  } finally {
-    submitting.value = false
-  }
-}
-
-function confirmDelete(team: Team) {
-  confirm.require({
-    group: 'delete',
-    message: `Are you sure you want to delete the team "${team.name}"?`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: async () => {
-      await deleteTeam(team.id!)
-      await applyFilters()
-    },
-  })
-}
-
-async function onPageChange(event: { first: number; rows: number }) {
-  first.value = event.first
-  pageSize.value = event.rows
-  await applyFilters()  // Reapply filters when page changes
-}
-
-async function applyFilters() {
-  first.value = 0  // ← reset to first page before filtering
-
+// Core fetch — always uses current first/pageSize/filters state
+async function fetchData() {
   const query: Query = {
     first: first.value,
     rows: pageSize.value,
@@ -194,11 +136,72 @@ async function applyFilters() {
   await queryTeams(query)
 }
 
+// Resets to page 1 then fetches — used when filters change
+async function applyFilters() {
+  first.value = 0
+  await fetchData()
+}
+
+// Updates pagination state then fetches — does NOT reset first
+async function onPageChange(event: { first: number; rows: number }) {
+  first.value = event.first
+  pageSize.value = event.rows
+  await fetchData()
+}
+
+// Methods
+function openCreateDialog() {
+  isEditMode.value = false
+  resetForm()
+  dialogVisible.value = true
+}
+
+function openEditDialog(team: Team) {
+  isEditMode.value = true
+  setFormData(team)
+  dialogVisible.value = true
+}
+
+async function submitForm() {
+  if (!validate()) {
+    return
+  }
+  submitting.value = true
+  try {
+    const values = getFormValues()
+    if (isEditMode.value && values.id) {
+      const { id, ...teamData } = values
+      await updateTeam(id, teamData)
+    } else {
+      await createTeam(values)
+    }
+    dialogVisible.value = false
+    resetForm()
+    // Stay on the current page after create/update
+    await fetchData()
+  } finally {
+    submitting.value = false
+  }
+}
+
+function confirmDelete(team: Team) {
+  confirm.require({
+    group: 'delete',
+    message: `Are you sure you want to delete the team "${team.name}"?`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: async () => {
+      await deleteTeam(team.id!)
+      // Stay on the current page after delete
+      await fetchData()
+    },
+  })
+}
+
 // Lifecycle
 onMounted(() => {
   applyFilters()
 })
-
 </script>
 
 <style scoped lang="scss">
