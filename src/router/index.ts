@@ -22,19 +22,40 @@ const router = createRouter({
       },
     },
     {
+      path: '/services-page',
+      name: 'services-page',
+      component: () => import('../pages/ServicesPage.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/service/:id',
+      name: 'service',
+      component: () => import('../pages/SingleServicePage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
       path: '/callback',
       name: 'callback',
       component: () => import('../pages/CallbackPage.vue'),
     },
     {
-      path: '/create-api-key',
-      name: 'create-api-key',
-      component: () => import('../pages/APIKeyCreationPage.vue'),
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../pages/UserProfilePage.vue'),
+    },
+    {
+      path: '/admin/user-management',
+      name: 'user-management',
+      component: () => import('../pages/AdminUserManagementPage.vue'),
       meta: {
         requiresAuth: true,
         roles: [Roles.ADMINISTRATOR],
       },
-      
     },
     {
       path: '/teams',

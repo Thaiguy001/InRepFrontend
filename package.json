@@ -19,6 +19,7 @@
     "@primevue/themes": "^4.5.4",
     "oidc-client-ts": "^3.4.1",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.4",
     "vue": "^3.5.27",
