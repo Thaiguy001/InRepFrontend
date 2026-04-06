@@ -11,6 +11,7 @@ import { useAuthStore } from './stores/auth'
 import { ToastService } from 'primevue'
 import ConfirmationService from 'primevue/confirmationservice'
 import Tooltip from 'primevue/tooltip'
+import 'primeicons/primeicons.css'
 
 const app = createApp(App)
 

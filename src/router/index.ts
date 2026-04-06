@@ -58,6 +58,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/teams',
+      name: 'teams',
+      component: () => import('../pages/TeamsPage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notfound',
       component: () => import('../pages/Error/NotFound.vue'),

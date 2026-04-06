@@ -60,6 +60,11 @@ const items = computed(() => {
             icon: 'pi pi-info-circle',
             command: () => router.push('/services-page')
         },
+        {
+        label: 'Teams',
+        icon: 'pi pi-users',
+        command: () => router.push('/teams'),
+    },
     ]
     if (auth.userRole === 'Administrator') {
         nav.push({

@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import { reactive } from 'vue'
-import { type Service } from '@/api/generated/models/Service'
+import { type Service } from '@/api'
 import { ServiceService } from '@/api'
 import Button from 'primevue/button'
 import { useToastHelperService } from '@/services/toastHelperService'
