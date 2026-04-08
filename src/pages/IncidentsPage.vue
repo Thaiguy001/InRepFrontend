@@ -15,37 +15,17 @@
 
             <template #content>
                 <div class="filter-top-row">
-                    <InputText
-                        v-model="searchTerm"
-                        placeholder="Search incidents..."
-                        class="control-input search-input"
-                    />
+                    <InputText v-model="searchTerm" placeholder="Search incidents..."
+                        class="control-input search-input" />
 
-                    <Select
-                        v-model="sortMode"
-                        :options="sortOptions"
-                        optionLabel="label"
-                        optionValue="value"
-                        placeholder="Sort incidents"
-                        class="control-input"
-                    />
+                    <Select v-model="sortMode" :options="sortOptions" optionLabel="label" optionValue="value"
+                        placeholder="Sort incidents" class="control-input" />
                     <br>
-                    <Button
-                        label="Clear"
-                        icon="pi pi-filter-slash"
-                        severity="secondary"
-                        outlined
-                        class="sort-button control-input-item"
-                        @click="resetFilters"
-                    />
-                    <Button
-                        :label="showAdvancedFilters ? 'Hide Advanced' : 'Advanced Filters'"
-                        :icon="showAdvancedFilters ? 'pi pi-chevron-up' : 'pi pi-sliders-h'"
-                        text
-                        severity="secondary"
-                        class="sort-button control-input-item"
-                        @click="showAdvancedFilters = !showAdvancedFilters"
-                    />
+                    <Button label="Clear" icon="pi pi-filter-slash" severity="secondary" outlined
+                        class="sort-button control-input-item" @click="resetFilters" />
+                    <Button :label="showAdvancedFilters ? 'Hide Advanced' : 'Advanced Filters'"
+                        :icon="showAdvancedFilters ? 'pi pi-chevron-up' : 'pi pi-sliders-h'" text severity="secondary"
+                        class="sort-button control-input-item" @click="showAdvancedFilters = !showAdvancedFilters" />
                 </div>
 
                 <div v-if="showAdvancedFilters" class="advanced-panel">
@@ -105,19 +85,17 @@
         </div>
 
         <div v-else class="incident-list">
-            <Card
-                v-for="incident in filteredIncidents"
-                :key="incident.id"
-                class="issue-card compact-card"
-                @click="openIncident(incident.id)"
-            >
+            <Card v-for="incident in filteredIncidents" :key="incident.id" class="issue-card compact-card"
+                @click="incident.id !== undefined && openIncident(incident.id)">
                 <template #title>
                     <div class="card-header">
                         <div class="incident-main">
                             <span class="icon">
                                 <i v-if="incident.status === 'resolved'" class="pi pi-check-circle status-resolved"></i>
-                                <i v-else-if="incident.status === 'triggered'" class="pi pi-minus-circle status-triggered"></i>
-                                <i v-else-if="incident.status === 'acknowledged'" class="pi pi-clock status-acknowledged"></i>
+                                <i v-else-if="incident.status === 'triggered'"
+                                    class="pi pi-minus-circle status-triggered"></i>
+                                <i v-else-if="incident.status === 'acknowledged'"
+                                    class="pi pi-clock status-acknowledged"></i>
                             </span>
 
                             <div class="incident-text">
@@ -128,37 +106,28 @@
                                 <div class="incident-meta">
                                     <span class="issue-number">#{{ incident.id }}</span>
 
-                                    <span class="status-pill" :class="statusClass(incident.status)">
+                                    <span class="status-pill" :class="statusClass(incident.status ?? '')">
                                         {{ incident.status }}
                                     </span>
 
                                     <span>
                                         Triggered {{ formatDate(incident.created_at) }}
                                     </span>
-
-                                    <span v-if="getLastActionDate(incident)">
-                                        Last action {{ formatDate(getLastActionDate(incident)) }}
-                                    </span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="incident-right">
-                            <span class="severity-pill" :class="severityClass(incident.severity)">
+                            <span class="severity-pill" :class="severityClass(incident.severity ?? '')">
                                 {{ incident.severity }}
                             </span>
                             <span class="incident-meta">
-                                <Button
-                                    v-if="incident.service_id && serviceMap[incident.service_id]"
-                                    text
-                                    rounded
-                                    severity="secondary"
-                                    class="service-link-button"
+                                <Button v-if="incident.service_id && serviceMap[incident.service_id]" text rounded
+                                    severity="secondary" class="service-link-button"
                                     :label="serviceMap[incident.service_id]?.name"
-                                    @click.stop="openServiceFromIncident(incident.service_id)"
-                                />
+                                    @click.stop="openServiceFromIncident(incident.service_id)" />
                             </span>
-                            
+
                         </div>
                     </div>
                 </template>
@@ -180,6 +149,9 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Button from 'primevue/button'
 import 'primeicons/primeicons.css'
 
+import { type Incident } from '@/api/generated/models/Incident'
+import { type Service } from '@/api/generated/models/Service'
+
 const router = useRouter()
 
 onMounted(() => {
@@ -196,6 +168,15 @@ const state = reactive({
 
 const searchTerm = ref('')
 const showAdvancedFilters = ref(false)
+
+function toTimestamp(value: number | string | null | undefined): number {
+    if (value == null) return 0
+
+    if (typeof value === 'number') return value
+
+    const parsed = Date.parse(value)
+    return Number.isNaN(parsed) ? 0 : parsed
+}
 
 const severityFilters = reactive({
     critical: true,
@@ -232,34 +213,15 @@ const severityRank: Record<string, number> = {
 
 const incidents = ref<Incident[]>([])
 
-interface Incident {
-    id: number
-    summary: string
-    severity: string
-    status: string
-    created_at: number
-    service_id: number
-    acknowledged_at: number | null
-    resolved_at: number | null
-    resolution_notes: string | null
-    assigned_to: number | null
-    acknowledged_by: number | null
-    resolved_by: number | null
-}
-
 /* Services */
-
-interface Service {
-    id: number
-    name: string
-    description: string
-}
 
 const services = ref<Service[]>([])
 
 const serviceMap = computed<Record<number, Service>>(() => {
     return services.value.reduce((acc, service) => {
-        acc[service.id] = service
+        if (service.id !== undefined) {
+            acc[service.id] = service
+        }
         return acc
     }, {} as Record<number, Service>)
 })
@@ -279,17 +241,17 @@ async function fetchServices() {
     }
 }
 
-function getServiceName(serviceId: number) {
-    const service = services.value.find(s => s.id === serviceId)
-    return service?.name ?? 'Unknown Service'
+function getServiceName(serviceId: number | null | undefined) {
+    if (serviceId == null) return 'Unknown Service'
+    return serviceMap.value[serviceId]?.name ?? 'Unknown Service'
 }
 
 /* Filtering + Sorting */
 
 const filteredIncidents = computed(() => {
     let result = incidents.value.filter((incident) => {
-        const sev = incident.severity.toLowerCase()
-        const status = incident.status.toLowerCase()
+        const sev = (incident.severity ?? '').toLowerCase()
+        const status = (incident.status ?? '').toLowerCase()
 
         const severityMatch =
             (sev === 'critical' && severityFilters.critical) ||
@@ -302,10 +264,9 @@ const filteredIncidents = computed(() => {
             (status === 'acknowledged' && statusFilters.acknowledged) ||
             (status === 'resolved' && statusFilters.resolved)
 
-        const searchMatch =
-            !searchTerm.value ||
-            incident.summary.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-            getServiceName(incident.service_id).toLowerCase().includes(searchTerm.value.toLowerCase())
+        const search = searchTerm.value.trim().toLowerCase()
+
+        const searchMatch = !search || (incident.summary ?? '').toLowerCase().includes(search) || getServiceName(incident.service_id).toLowerCase().includes(search)
 
         return severityMatch && statusMatch && searchMatch
     })
@@ -313,16 +274,16 @@ const filteredIncidents = computed(() => {
     result = [...result].sort((a, b) => {
         switch (sortMode.value) {
             case 'severity_asc':
-                return (severityRank[a.severity.toLowerCase()] ?? 0) - (severityRank[b.severity.toLowerCase()] ?? 0)
+                return (severityRank[(a.severity ?? '').toLowerCase()] ?? 0) - (severityRank[(b.severity ?? '').toLowerCase()] ?? 0)
 
             case 'severity_desc':
-                return (severityRank[b.severity.toLowerCase()] ?? 0) - (severityRank[a.severity.toLowerCase()] ?? 0)
+                return (severityRank[(b.severity ?? '').toLowerCase()] ?? 0) - (severityRank[(a.severity ?? '').toLowerCase()] ?? 0)
 
             case 'triggered_asc':
-                return a.created_at - b.created_at
+                return toTimestamp(a.created_at) - toTimestamp(b.created_at)
 
             case 'triggered_desc':
-                return b.created_at - a.created_at
+                return toTimestamp(b.created_at) - toTimestamp(a.created_at)
 
             case 'last_action_asc':
                 return getSortableLastAction(a) - getSortableLastAction(b)
@@ -343,7 +304,7 @@ function getLastActionDate(incident: Incident) {
 }
 
 function getSortableLastAction(incident: Incident) {
-    return Number(getLastActionDate(incident) ?? 0)
+    return toTimestamp(getLastActionDate(incident))
 }
 
 function resetFilters() {
@@ -451,13 +412,6 @@ function formatDate(ts: any) {
     color: var(--p-text-color);
 }
 
-.filter-panel {
-    border: 1px solid var(--p-content-border-color);
-    background: var(--p-content-background);
-    border-radius: 10px;
-    padding: 14px 16px;
-}
-
 .filter-card {
     margin-bottom: 10px;
 }
@@ -475,12 +429,6 @@ function formatDate(ts: any) {
     gap: 8px;
     color: var(--p-text-color);
     font-size: 0.95rem;
-}
-
-.search-sort {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
 }
 
 .control-input {
@@ -547,17 +495,10 @@ function formatDate(ts: any) {
 
 /*  Card Content  */
 
-.card-header {
-    display: flex;
-    align-items: center; /* keeps left + right vertically centered */
-    justify-content: space-between;
-    gap: 12px;
-    min-height: 32px;
-}
-
 .incident-main {
     display: flex;
-    align-items: center; /* centers icon against whole text block */
+    align-items: center;
+    /* centers icon against whole text block */
     gap: 12px;
     min-width: 0;
     flex: 1;
@@ -578,28 +519,6 @@ function formatDate(ts: any) {
 .icon i {
     line-height: 1;
     display: block;
-}
-
-.status-icon {
-    flex: 0 0 auto;
-    width: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 2px;
-    font-size: 1rem;
-}
-
-.icon-resolved {
-    color: #22c55e;
-}
-
-.icon-triggered {
-    color: #ef4444;
-}
-
-.icon-acknowledged {
-    color: #f59e0b;
 }
 
 .incident-text {
@@ -646,6 +565,7 @@ function formatDate(ts: any) {
     justify-content: space-between;
     gap: 12px;
     min-height: 44px;
+    padding-top: 7px;
 }
 
 .incident-main {
@@ -758,13 +678,6 @@ function formatDate(ts: any) {
 .status-acknowledged {
     background: rgba(245, 158, 11, 0.14);
     color: #f59e0b;
-}
-
-.incident-service {
-    font-size: 0.9rem;
-    color: var(--p-text-muted-color);
-    margin-top: 2px;
-    font-style: italic;
 }
 
 @media (max-width: 640px) {
