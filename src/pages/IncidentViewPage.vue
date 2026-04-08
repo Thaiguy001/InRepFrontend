@@ -43,16 +43,16 @@
                     <div class="detail-row">
                         <span class="detail-label">Severity</span>
                         <span class="detail-value">
-                            <span class="severity-pill" :class="severityClass(incident.severity)">
-                                {{ incident.severity }}
-                            </span>
+                            <span class="severity-pill" :class="severityClass(incident.severity || '')">
+                                    {{ incident.severity }}
+                                </span>
                         </span>
                     </div>
 
                     <div class="detail-row">
                         <span class="detail-label">Status</span>
                         <span class="detail-value">
-                            <span class="status-pill" :class="statusClass(incident.status)">
+                            <span class="status-pill" :class="statusClass(incident.status || '')">
                                 {{ incident.status }}
                             </span>
                         </span>
@@ -64,12 +64,12 @@
                     </div>
 
                     <div class="detail-row" v-if="incident.acknowledged_at">
-                        <span class="detail-label">Acknowledged</span>
+                        <span class="detail-label">Acknowledged by {{ state.ack_username }}</span>
                         <span class="detail-value">{{ formatDate(incident.acknowledged_at) }}</span>
                     </div>
 
                     <div class="detail-row" v-if="incident.resolved_at">
-                        <span class="detail-label">Resolved</span>
+                        <span class="detail-label">Resolved by {{ state.res_username }}</span>
                         <span class="detail-value">{{ formatDate(incident.resolved_at) }}</span>
                     </div>
 
@@ -82,7 +82,7 @@
                                 text
                                 severity="secondary"
                                 class="service-link-button"
-                                @click="openService(service.id)"
+                                @click="service.id && openService(service.id)"
                             />
                         </span>
                     </div>
@@ -104,8 +104,9 @@
                             </div>
                         </div>
 
-                        <div class="action-buttons">
+                        <div class="action-buttons" >
                             <Button
+                                :disabled="incident.status != 'triggered'"
                                 label="Acknowledge"
                                 icon="pi pi-clock"
                                 severity="secondary"
@@ -178,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { IncidentService, ServiceService } from '@/api'
+import { IncidentService, ServiceService, UserService } from '@/api'
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -191,27 +192,12 @@ import Textarea from 'primevue/textarea'
 import 'primeicons/primeicons.css'
 
 import { useToastHelperService } from '@/services/toastHelperService'
+import { useAuthStore } from '@/stores/auth'
+import { type User } from '@/api/generated/models/User'
 
-interface Incident {
-    id: number
-    summary: string
-    severity: string
-    status: string
-    created_at: number
-    service_id: number
-    acknowledged_at: number | null
-    resolved_at: number | null
-    resolution_notes: string | null
-    assigned_to: number | null
-    acknowledged_by: number | null
-    resolved_by: number | null
-}
+import { type Incident } from '@/api/generated/models/Incident'
+import { type Service } from '@/api/generated/models/Service'
 
-interface Service {
-    id: number
-    name: string
-    description: string
-}
 
 const route = useRoute()
 const router = useRouter()
@@ -223,9 +209,13 @@ const service = ref<Service | null>(null)
 const resolveDialogVisible = ref(false)
 const resolutionNotes = ref('')
 
+const auth = useAuthStore()
+
 const state = reactive({
     loading: false,
-    error: null as string | null
+    error: null as string | null,
+    res_username: null as string | null,
+    ack_username: null as string | null
 })
 
 onMounted(() => {
@@ -252,6 +242,35 @@ async function fetchIncident() {
 
             if (incident.value.service_id) {
                 await fetchService(incident.value.service_id)
+            }
+
+            // Fetch user details for acknowledged_by and resolved_by if present
+            if (incident.value.acknowledged_by || incident.value.resolved_by) {
+                // If both resolution and acknowledgment were done by the same user, make only a single user api get request
+                if (incident.value.acknowledged_by && incident.value.resolved_by && (incident.value.acknowledged_by === incident.value.resolved_by)) {
+                    const userResponse = await UserService.getApiV1Users1(incident.value.acknowledged_by)
+                    if (userResponse && 'id' in userResponse) {
+                        const user = userResponse as User
+                        const displayName = user.username ?? user.email ?? `User #${user.id}`
+                        state.ack_username = displayName
+                        state.res_username = displayName
+                    }
+                
+                } else if (incident.value.acknowledged_by) {
+                    console.log('Fetching user for acknowledged_by:', incident.value.acknowledged_by)
+                    const ackUserResponse = await UserService.getApiV1Users1(incident.value.acknowledged_by)
+                    if (ackUserResponse && 'id' in ackUserResponse) {
+                        const ackUser = ackUserResponse as User
+                        state.ack_username = ackUser.username ?? ackUser.email ?? `User #${ackUser.id}`
+                    }
+                } else if (incident.value.resolved_by) {
+                    console.log('Fetching user for resolved_by:', incident.value.resolved_by)
+                    const resUserResponse = await UserService.getApiV1Users1(incident.value.resolved_by)
+                    if (resUserResponse && 'id' in resUserResponse) {
+                        const resUser = resUserResponse as User
+                        state.res_username = resUser.username ?? resUser.email ?? `User #${resUser.id}`
+                    }
+                }
             }
         } else if (response && 'message' in response) {
             state.error = response.message ?? 'Failed to load incident.'
@@ -283,7 +302,7 @@ function openResolveDialog() {
 }
 
 async function resolveIncident() {
-    if (!incident.value) return
+    if (!incident.value || !incident.value.id) return
 
     try {
         await IncidentService.postApiV1IncidentsResolve(incident.value.id, {
@@ -299,7 +318,30 @@ async function resolveIncident() {
 }
 
 function acknowledgeIncident() {
-    toast.showInfo('Not implemented yet', 'Acknowledge backend is not ready yet.')
+    if (!incident.value || !incident.value.id) return
+    if (!auth.user) {
+        toast.showError('Unauthorized', 'You must be logged in to acknowledge incidents.')
+        return
+    }
+    IncidentService.postApiV1IncidentsAcknowledge(incident.value.id)
+        .then(() => {
+            toast.showSuccess('Incident acknowledged')
+            fetchIncident()
+        })
+        .catch((error: any) => {
+            toast.showError('Failed to acknowledge incident', error?.message)
+        })
+}
+
+async function getUserName(userId: number | null) {
+    if (!userId) return 'Unknown User'
+    const response = await UserService.getApiV1Users1(userId)
+    if (response && 'id' in response) {
+        const user = response as User
+        return user.username || `User #${userId}`
+    } else {
+        return `User #${userId}`
+    }
 }
 
 function openService(serviceId: number) {
