@@ -26,7 +26,7 @@ If this URL does not load, the frontend API client will not work.
 ### Environment Setup
 
 Create a .env.local file in the project root:
-VITE_API_BASE_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:5000
 
 Restart the dev server if you change this.
 
