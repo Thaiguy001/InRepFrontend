@@ -62,7 +62,7 @@ import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
 import { type User } from '@/api/generated/models/User'
-import { TeamService } from '@/api'
+import { TeamsService } from '@/api'
 
 const props = defineProps<{
   visible: boolean
@@ -94,7 +94,7 @@ onMounted(fetchTeams)
 async function fetchTeams() {
   teamsLoading.value = true
   try {
-    teams.value = await TeamService.getApiV1Team() as { id: number; name: string; description: string }[]
+    teams.value = await TeamsService.getApiV1Teams() as { id: number; name: string; description: string }[]
   } catch (error) {
     console.error('Failed to load teams:', error)
   } finally {
