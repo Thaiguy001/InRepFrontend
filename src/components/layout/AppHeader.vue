@@ -4,13 +4,8 @@
             <h2 class="logo">Incident Response Platform</h2>
         </template>
         <template #end>
-            <Button
-                v-if="!auth.isLoggedIn"
-                icon="pi pi-sign-in"
-                label="Login"
-                @click="auth.login()"
-                class="login-btn"
-            />
+            <Button v-if="!auth.isLoggedIn" icon="pi pi-sign-in" label="Login" @click="auth.login()"
+                class="login-btn" />
             <div v-else class="user-menu-wrapper">
                 <Button class="user-menu-btn" @click="menuRef.toggle($event)" aria-haspopup="true"
                     aria-controls="user-menu">
@@ -66,17 +61,23 @@ const items = computed(() => {
             command: () => router.push('/services-page')
         },
         {
-        label: 'Teams',
-        icon: 'pi pi-users',
-        command: () => router.push('/teams'),
-    },
+            label: 'Teams',
+            icon: 'pi pi-users',
+            command: () => router.push('/teams'),
+        },
     ]
     if (auth.userRole === 'Administrator') {
-        nav.push({
-            label: 'User Management',
-            icon: 'pi pi-users',
-            command: () => router.push('/admin/user-management'),
-        })
+        nav.push(
+            {
+                label: 'User Management',
+                icon: 'pi pi-users',
+                command: () => router.push('/admin/user-management'),
+            },
+            {
+                label: 'Create Incident',
+                icon: 'pi pi-plus',
+                command: () => router.push('/create-incident')
+            })
     }
     return nav
 })
@@ -89,11 +90,6 @@ const userMenuItems = computed(() => [
             { separator: true },
             { label: 'Log out', icon: 'pi pi-sign-out', command: () => auth.logout() },
         ],
-    },
-    {
-        label: 'Create Incident',
-        icon: 'pi pi-plus',
-        command: () => router.push('/create-incident'),
     },
 ])
 </script>
@@ -159,18 +155,18 @@ const userMenuItems = computed(() => [
 }
 
 .login-btn {
-  background: transparent !important;
-  border: 1px solid #e5e7eb !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  padding: 0.4375rem 0.875rem !important;
-  transition: all 0.12s !important;
+    background: transparent !important;
+    border: 1px solid #e5e7eb !important;
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 0.4375rem 0.875rem !important;
+    transition: all 0.12s !important;
 }
 
 .login-btn:hover {
-  background: #000000 !important;
-  border-color: #868686 !important;
+    background: #000000 !important;
+    border-color: #868686 !important;
 }
 </style>
