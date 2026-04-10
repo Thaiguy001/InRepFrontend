@@ -39,7 +39,6 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 src/api/generated/
-openapi.json
 
 # Environment variables
 .env
