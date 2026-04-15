@@ -32,9 +32,12 @@ export default defineComponent({
 
 <style scoped>
 .callback {
+  --c-bg:   #0d0f14;
+  --c-muted: #6b7280;
+
   width: 100vw;
   height: 100vh;
-  background: #0d0f14;
+  background: var(--c-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,9 +45,16 @@ export default defineComponent({
   gap: 1rem;
 }
 
+@media (prefers-color-scheme: light) {
+  .callback {
+    --c-bg:   #f9fafb;
+    --c-muted: #6b7280;
+  }
+}
+
 .callback-text {
   margin: 0;
   font-size: 0.9375rem;
-  color: #6b7280;
+  color: var(--c-muted);
 }
 </style>

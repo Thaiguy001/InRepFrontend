@@ -18,31 +18,44 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import Button from 'primevue/button'
 import { useAuthStore } from '@/stores/auth'
 
-import { onMounted, onUnmounted } from 'vue'
-
-onMounted(() => {
-  document.body.style.overflow = 'hidden'
-})
-
-onUnmounted(() => {
-  document.body.style.overflow = ''
-})
+onMounted(() => { document.body.style.overflow = 'hidden' })
+onUnmounted(() => { document.body.style.overflow = '' })
 
 const auth = useAuthStore()
 </script>
 
 <style scoped>
+/* ── Tokens ── */
 .landing {
+  --c-bg:       #0d0f14;
+  --c-text:     #f9fafb;
+  --c-muted:    #6b7280;
+  --c-btn-bg:   #f9fafb;
+  --c-btn-text: #0d0f14;
+  --c-border:   #1f2937;
+
   position: relative;
   width: 100%;
   height: 100vh;
-  background: #0d0f14;
+  background: var(--c-bg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+@media (prefers-color-scheme: light) {
+  .landing {
+    --c-bg:       #f9fafb;
+    --c-text:     #0d0f14;
+    --c-muted:    #6b7280;
+    --c-btn-bg:   #0d0f14;
+    --c-btn-text: #f9fafb;
+    --c-border:   #e5e7eb;
+  }
 }
 
 /* ── Nav ── */
@@ -52,13 +65,14 @@ const auth = useAuthStore()
   display: flex;
   align-items: center;
   padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .nav-logo {
   font-size: 1.125rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: #f3f4f6;
+  color: var(--c-text);
 }
 
 /* ── Hero ── */
@@ -74,15 +88,13 @@ const auth = useAuthStore()
   margin: 0 auto;
 }
 
-.hero-content {
-  max-width: 560px;
-}
+.hero-content { max-width: 560px; }
 
 .hero-title {
   margin: 0 0 1rem;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 800;
-  color: #f9fafb;
+  color: var(--c-text);
   line-height: 1.1;
   letter-spacing: -0.03em;
 }
@@ -90,20 +102,17 @@ const auth = useAuthStore()
 .hero-sub {
   margin: 0 0 2.5rem;
   font-size: 1.0625rem;
-  color: #6b7280;
+  color: var(--c-muted);
   line-height: 1.6;
 }
 
-.hero-actions {
-  display: flex;
-  gap: 0.75rem;
-}
+.hero-actions { display: flex; gap: 0.75rem; }
 
-/* ── Sign in button ── */
+/* ── Button — inverts between modes for max contrast ── */
 :deep(.btn-signin.p-button) {
-  background: #f9fafb !important;
-  border: 1px solid #f9fafb !important;
-  color: #0d0f14 !important;
+  background: var(--c-btn-bg) !important;
+  border: 1px solid var(--c-btn-bg) !important;
+  color: var(--c-btn-text) !important;
   border-radius: 999px !important;
   font-size: 0.9375rem !important;
   font-weight: 600 !important;
@@ -112,7 +121,5 @@ const auth = useAuthStore()
   letter-spacing: 0.01em !important;
 }
 
-:deep(.btn-signin.p-button:hover) {
-  opacity: 0.88 !important;
-}
+:deep(.btn-signin.p-button:hover) { opacity: 0.85 !important; }
 </style>
