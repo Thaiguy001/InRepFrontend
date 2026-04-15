@@ -13,6 +13,14 @@ const router = createRouter({
       meta: { hideNav: true },
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('../pages/Dashboard.vue'),
+      meta: {
+        requiresAuth: true
+      },
+    },
+    {
       path: '/test',
       name: 'test',
       component: () => import('../pages/TestPage.vue'),
