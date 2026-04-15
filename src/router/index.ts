@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '../pages/HomePage.vue'
 import RoleGuard from './guards/RoleGuard'
 import AuthGuard from './guards/AuthGuard'
 import { Roles } from '@/enums/Roles.ts'
@@ -9,8 +8,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomePage,
+      name: 'landing',
+      component: () => import('../pages/LandingPage.vue'),
+      meta: { hideNav: true },
     },
     {
       path: '/test',
