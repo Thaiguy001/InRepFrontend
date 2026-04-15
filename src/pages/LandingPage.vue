@@ -21,6 +21,16 @@
 import Button from 'primevue/button'
 import { useAuthStore } from '@/stores/auth'
 
+import { onMounted, onUnmounted } from 'vue'
+
+onMounted(() => {
+  document.body.style.overflow = 'hidden'
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
+
 const auth = useAuthStore()
 </script>
 
@@ -28,7 +38,7 @@ const auth = useAuthStore()
 .landing {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   background: #0d0f14;
   overflow: hidden;
   display: flex;

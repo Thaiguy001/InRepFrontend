@@ -8,9 +8,12 @@ export default function authGuard(
 ) {
   const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !auth.user) {
-    auth.login()
-    return
+  if (to.name === 'landing' && auth.isLoggedIn) {
+    return next({ name: 'dashboard' })
+  }
+
+  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+    return next({ name: 'landing' })
   }
 
   next()
