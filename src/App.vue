@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import { useRoute } from 'vue-router'
-import AppHeader from './components/layout/AppHeader.vue'
 import AppSidebar from '@/components/layout/AppSideBar.vue'
 import { Toast } from 'primevue'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -23,7 +22,7 @@ const showNav = computed(() => !route.meta.hideNav)
   <ConfirmDialog />
 </template>
 
-<style scoped>
+<style>
 
 html, body, #app {
   margin: 0;
@@ -31,6 +30,9 @@ html, body, #app {
   height: 100%;
   overflow: hidden;
 }
+</style>
+
+<style scoped>
 
 .app-layout {
   display: flex;

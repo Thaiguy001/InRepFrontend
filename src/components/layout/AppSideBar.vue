@@ -11,14 +11,8 @@
 
     <!-- Nav items -->
     <nav class="sidebar-nav">
-      <RouterLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="nav-item"
-        :class="{ active: isActive(item.to) }"
-        v-tooltip.right="collapsed ? item.label : null"
-      >
+      <RouterLink v-for="item in navItems" :key="item.to" :to="item.to" class="nav-item"
+        v-tooltip.right="collapsed ? item.label : null">
         <i :class="['nav-icon', item.icon]"></i>
         <span class="nav-label" v-if="!collapsed">{{ item.label }}</span>
       </RouterLink>
@@ -45,13 +39,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { RouterLink, useRouter, useRoute } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import Menu from 'primevue/menu'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
-const route = useRoute()
 const menuRef = ref()
 const collapsed = ref(false)
 
@@ -62,13 +55,24 @@ const initials = computed(() => {
 
 const navItems = computed(() => {
   const items = [
-    { to: '/dashboard',   label: 'Dashboard',       icon: 'pi pi-home'       },
-    { to: '/services-page', label: 'Services',       icon: 'pi pi-server'     },
-    { to: '/teams',       label: 'Teams',             icon: 'pi pi-sitemap'    },
-    { to: '/profile',     label: 'My Profile',        icon: 'pi pi-user'       },
+    {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: 'pi pi-home'
+    },
+    {
+      to: '/services-page',
+      label: 'Services',
+      icon: 'pi pi-server'
+    },
+    {
+      to: '/teams',
+      label: 'Teams',
+      icon: 'pi pi-sitemap'
+    },
   ]
   if (auth.userRole === 'Administrator') {
-    items.splice(3, 0, {
+    items.push({
       to: '/admin/user-management',
       label: 'User Management',
       icon: 'pi pi-users',
@@ -81,34 +85,32 @@ const userMenuItems = computed(() => [
   {
     label: auth.userName ?? 'Account',
     items: [
-      { label: 'My Profile', icon: 'pi pi-user',     command: () => router.push('/profile') },
+      { label: 'My Profile', icon: 'pi pi-user', command: () => router.push('/profile') },
       { separator: true },
-      { label: 'Log out',    icon: 'pi pi-sign-out', command: () => auth.logout() },
+      { label: 'Log out', icon: 'pi pi-sign-out', command: () => auth.logout() },
     ],
   },
 ])
 
-function isActive(to: string): boolean {
-  return route.path === to || route.path.startsWith(to + '/')
-}
+
 </script>
 
 <style scoped>
 /* ── Tokens ── */
 .sidebar {
-  --c-bg:       #ffffff;
-  --c-border:   #e5e7eb;
-  --c-text:     #111827;
-  --c-muted:    #6b7280;
-  --c-hover:    #f3f4f6;
-  --c-active-bg:#f3f4f6;
-  --c-active:   #111827;
-  --c-avatar:   #e5e7eb;
+  --c-bg: #ffffff;
+  --c-border: #e5e7eb;
+  --c-text: #111827;
+  --c-muted: #6b7280;
+  --c-hover: #f3f4f6;
+  --c-active-bg: #f3f4f6;
+  --c-active: #111827;
+  --c-avatar: #e5e7eb;
   --c-avatar-text: #374151;
 
-  --sidebar-width:           220px;
+  --sidebar-width: 220px;
   --sidebar-width-collapsed: 56px;
-  --transition:              0.2s ease;
+  --transition: 0.2s ease;
 
   width: var(--sidebar-width);
   height: 100vh;
@@ -129,14 +131,14 @@ function isActive(to: string): boolean {
 
 @media (prefers-color-scheme: dark) {
   .sidebar {
-    --c-bg:          #1b1f27;
-    --c-border:      #2f3745;
-    --c-text:        #f3f4f6;
-    --c-muted:       #8b92a9;
-    --c-hover:       #22283a;
-    --c-active-bg:   #22283a;
-    --c-active:      #f3f4f6;
-    --c-avatar:      #2f3745;
+    --c-bg: #020203;
+    --c-border: #2f3745;
+    --c-text: #f3f4f6;
+    --c-muted: #8b92a9;
+    --c-hover: #22283a;
+    --c-active-bg: #22283a;
+    --c-active: #f3f4f6;
+    --c-avatar: #2f3745;
     --c-avatar-text: #94a3b8;
   }
 }
@@ -165,12 +167,15 @@ function isActive(to: string): boolean {
 }
 
 .toggle-btn {
-  width: 28px; height: 28px;
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
   border: 1px solid var(--c-border);
   background: transparent;
   color: var(--c-muted);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   font-size: 0.75rem;
   flex-shrink: 0;
@@ -217,7 +222,7 @@ function isActive(to: string): boolean {
   color: var(--c-text);
 }
 
-.nav-item.active {
+.nav-item.router-link-active {
   background: var(--c-active-bg);
   color: var(--c-active);
   font-weight: 600;
@@ -253,13 +258,16 @@ function isActive(to: string): boolean {
 }
 
 .user-avatar {
-  width: 28px; height: 28px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--c-avatar);
   color: var(--c-avatar-text);
   font-size: 0.6875rem;
   font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
