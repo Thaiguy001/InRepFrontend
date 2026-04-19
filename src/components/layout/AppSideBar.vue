@@ -61,6 +61,11 @@ const navItems = computed(() => {
       icon: 'pi pi-home'
     },
     {
+      to: '/incidents',
+      label: 'Incidents',
+      icon: 'pi pi-info-circle',
+    },
+    {
       to: '/services-page',
       label: 'Services',
       icon: 'pi pi-server'
@@ -70,13 +75,24 @@ const navItems = computed(() => {
       label: 'Teams',
       icon: 'pi pi-sitemap'
     },
+    {
+      to: '/test',
+      label: 'Test',
+      icon: 'pi pi-info-circle',
+    },
   ]
   if (auth.userRole === 'Administrator') {
     items.push({
       to: '/admin/user-management',
       label: 'User Management',
       icon: 'pi pi-users',
-    })
+    },
+      {
+        to: '/create-incident',
+        label: 'Create Incident',
+        icon: 'pi pi-plus',
+      })
+
   }
   return items
 })

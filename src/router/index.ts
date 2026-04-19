@@ -21,6 +21,31 @@ const router = createRouter({
       },
     },
     {
+      path: '/incidents',
+      name: 'incidents',
+      component: () => import('../pages/IncidentsPage.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/create-incident',
+      name: 'incidentcreate',
+      component: () => import('../pages/CreateIncidentPage.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: [Roles.ADMINISTRATOR],
+      },
+    },
+    {
+      path: '/incident/:id',
+      name: 'incident',
+      component: () => import('../pages/IncidentViewPage.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/test',
       name: 'test',
       component: () => import('../pages/TestPage.vue'),
