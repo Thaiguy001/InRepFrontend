@@ -1,5 +1,5 @@
 <template>
-    <Menubar :model="items" class="app-header">
+    <Menubar v-if="!router.currentRoute.value.meta.hideNav" :model="items" class="app-header">
         <template #start>
             <h2 class="logo">Incident Response Platform</h2>
         </template>
@@ -48,7 +48,7 @@ const items = computed(() => {
         {
             label: 'Dashboard',
             icon: 'pi pi-home',
-            command: () => router.push('/')
+            command: () => router.push('/dashboard')
         },
         {
             label: 'Test',

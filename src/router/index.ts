@@ -8,9 +8,17 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: () => import('../pages/LandingPage.vue'),
+      meta: { hideNav: true },
+    },
+    {
+      path: '/dashboard',
       name: 'dashboard',
       component: () => import('../pages/Dashboard.vue'),
-      //TODO add requiresAuth when landing page is implemented
+      meta: {
+        requiresAuth: true
+      },
     },
     {
       path: '/test',
