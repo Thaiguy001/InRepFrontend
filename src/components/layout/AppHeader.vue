@@ -46,7 +46,7 @@ const initials = computed(() => {
 const items = computed(() => {
     const nav = [
         {
-            label: 'Home',
+            label: 'Dashboard',
             icon: 'pi pi-home',
             command: () => router.push('/')
         },
