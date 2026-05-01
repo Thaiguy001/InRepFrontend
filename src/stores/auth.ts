@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { UserManager, User as OidcUser } from 'oidc-client-ts'
 import { type User } from '@/api/generated/models/User'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -44,9 +45,16 @@ export const useAuthStore = defineStore('auth', {
         this.appUser = null
       })
 
-      this.userManager.events.addAccessTokenExpired(() => {
+      this.userManager.events.addAccessTokenExpired(async () => {
+        if (!this.userManager) return
+
         this.user = null
         this.appUser = null
+
+        await this.userManager.removeUser() // removes user from storage
+        await this.userManager.clearStaleState() 
+
+        router.push('/')
       })
 
       // Try to load user from storage
@@ -63,8 +71,28 @@ export const useAuthStore = defineStore('auth', {
 
     async handleCallback() {
       if (!this.userManager) return
-      this.user = await this.userManager.signinRedirectCallback()
-      await this.syncUser(); //TODO add error handling and loading state for this call
+
+      try {
+        this.user = await this.userManager.signinRedirectCallback()
+        await this.syncUser()
+      } catch (error) {
+        console.error('Login failed:', error)
+        // Clear partial state
+        this.user = null
+        this.appUser = null
+        await this.userManager?.removeUser()
+
+        // Redirect to landing with error
+        router.push('/?error=login_failed')
+      }
+    },
+
+    async handleSessionExpired() {
+      this.user = null
+      this.appUser = null
+      await this.userManager?.removeUser()
+      await this.userManager?.clearStaleState()
+      router.push('/')
     },
 
     async syncUser() {
@@ -106,7 +134,7 @@ export const useAuthStore = defineStore('auth', {
       window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${logoutUri}`
     },
   },
-   persist: {
+  persist: {
     pick: ['appUser'],
   },
 })
