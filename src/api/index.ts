@@ -8,5 +8,17 @@ OpenAPI.TOKEN = async () => {
     return authStore.accessToken || ''
 }
 
+const originalFetch = window.fetch
+window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const response = await originalFetch(input, init)
+    
+    if (response.status === 401) {
+        const authStore = useAuthStore()
+        await authStore.handleSessionExpired()
+    }
+    
+    return response
+}
+
 // Re-export everything from generated
 export * from './generated'

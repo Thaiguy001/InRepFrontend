@@ -69,17 +69,7 @@ const navItems = computed(() => {
       to: '/services-page',
       label: 'Services',
       icon: 'pi pi-server'
-    },
-    {
-      to: '/teams',
-      label: 'Teams',
-      icon: 'pi pi-sitemap'
-    },
-    {
-      to: '/test',
-      label: 'Test',
-      icon: 'pi pi-info-circle',
-    },
+    }
   ]
   if (auth.userRole === 'Administrator') {
     items.push({
@@ -87,12 +77,21 @@ const navItems = computed(() => {
       label: 'User Management',
       icon: 'pi pi-users',
     },
-      {
+    {
+      to: '/teams',
+      label: 'Teams',
+      icon: 'pi pi-sitemap'
+    },
+    {
         to: '/create-incident',
         label: 'Create Incident',
         icon: 'pi pi-plus',
-      })
-
+    },
+    {
+      to: '/test',
+      label: 'Test',
+      icon: 'pi pi-info-circle',
+    })
   }
   return items
 })
