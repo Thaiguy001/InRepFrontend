@@ -21,16 +21,16 @@
                 <div class="form-field">
                     <label>Incident Severity</label>
                     <div class="radio-group">
-                        <input type="radio" name="severity" id="low" value="low" v-model="state.testSeverity" required />
+                        <input type="radio" name="severity" id="low" value="Low" v-model="state.testSeverity" required />
                       <label for="low">Low</label>
 
-                        <input type="radio" name="severity" id="medium" value="medium" v-model="state.testSeverity" required />
+                        <input type="radio" name="severity" id="medium" value="Medium" v-model="state.testSeverity" required />
                         <label for="medium">Medium</label>
 
-                        <input type="radio" name="severity" id="high" value="high" v-model="state.testSeverity" required />
+                        <input type="radio" name="severity" id="high" value="High" v-model="state.testSeverity" required />
                         <label for="high">High</label>
 
-                        <input type="radio" name="severity" id="critical" value="critical" v-model="state.testSeverity" required />
+                        <input type="radio" name="severity" id="critical" value="Critical" v-model="state.testSeverity" required />
                         <label for="critical">Critical</label>
                     </div>
                 </div>
