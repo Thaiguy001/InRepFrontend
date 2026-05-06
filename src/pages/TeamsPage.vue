@@ -1,10 +1,12 @@
 <template>
   <div class="teams-page">
-    <div class="container">
+    <div class="content-body">
       <div class="page-header">
         <div class="header-content">
-          <h1 class="page-title">Teams Management</h1>
-          <p class="page-subtitle">Manage your teams and their configurations</p>
+          <PageHeader
+            title="Teams Management"
+            subtitle="Manage your teams and their configurations"
+          />
         </div>
         <Button icon="pi pi-plus" label="Add Team" @click="openCreateDialog" class="add-button" />
       </div>
@@ -92,6 +94,8 @@ import FormTextarea from '@/components/common/FormTextarea.vue'
 import ConfirmDialog from 'primevue/confirmdialog'
 import type { Team, Query } from '@/api'
 import { useTeamsData, useTeamsForm } from '@/composables/useTeams'
+import PageHeader from '@/components/common/PageHeader.vue'
+import '@/assets/style.css'
 
 // Composables
 const { teams, total, loading, createTeam, updateTeam, deleteTeam, queryTeams } = useTeamsData()
@@ -208,32 +212,15 @@ onMounted(() => {
 .teams-page {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--surface-50) 0%, var(--surface-100) 100%);
-  padding: 2rem 1rem;
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+
 
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 2rem;
-    padding: 2rem;
-    background: var(--surface-0);
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--surface-200);
-
+    
     .header-content {
-      .page-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-color);
-        margin: 0 0 0.5rem 0;
-        letter-spacing: -0.025em;
-      }
 
       .page-subtitle {
         font-size: 1rem;
@@ -244,7 +231,7 @@ onMounted(() => {
     }
 
     .add-button {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: var(--color-accent);
       border: none;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
@@ -265,10 +252,10 @@ onMounted(() => {
   }
 
   .content-card {
-    background: var(--surface-0);
+    background: var(--color-bg-elevated);
     border-radius: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--surface-200);
+    border: 1px solid var(--color-border);
     overflow: hidden;
 
     .teams-table {
@@ -278,9 +265,9 @@ onMounted(() => {
 
       :deep(.p-datatable-thead > tr > th) {
         background: var(--surface-50);
-        border-bottom: 2px solid var(--surface-200);
+        border-bottom: 2px solid var(--color-border);
         font-weight: 600;
-        color: var(--text-color);
+        color: var(--color-text);
         font-size: 0.875rem;
         padding: 1rem;
         text-transform: uppercase;
@@ -296,8 +283,8 @@ onMounted(() => {
 
         >td {
           padding: 1rem;
-          border-bottom: 1px solid var(--surface-100);
-          color: var(--text-color);
+          border-bottom: 1px solid var(--color-border-soft);
+          color: var(--color-text);
         }
       }
 
@@ -356,22 +343,22 @@ onMounted(() => {
             justify-content: center;
 
             &.edit-button {
-              background: var(--surface-100);
-              color: var(--text-color);
+              background: var(--color-border);
+              color: var(--color-text);
 
               &:hover {
-                background: var(--primary-50);
+                background: var(--color-accent);
                 color: var(--primary-700);
                 transform: translateY(-1px);
               }
             }
 
             &.delete-button {
-              background: var(--red-50);
+              background: var(--color-danger);
               color: var(--red-500);
 
               &:hover {
-                background: var(--red-100);
+                background: var(--color-danger);
                 transform: translateY(-1px);
               }
             }
@@ -390,7 +377,7 @@ onMounted(() => {
         .empty-icon {
           width: 4rem;
           height: 4rem;
-          background: linear-gradient(135deg, var(--surface-200) 0%, var(--surface-300) 100%);
+          background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-elevated) 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -399,20 +386,20 @@ onMounted(() => {
 
           i {
             font-size: 2rem;
-            color: var(--text-muted-color);
+            color: var(--color-text-muted);
           }
         }
 
         .empty-title {
           font-size: 1.25rem;
           font-weight: 600;
-          color: var(--text-color);
+          color: var(--color-text);
           margin: 0 0 0.5rem 0;
         }
 
         .empty-message {
           font-size: 1rem;
-          color: var(--text-muted-color);
+          color: var(--color-text-muted);
           margin: 0;
         }
       }
@@ -480,6 +467,7 @@ onMounted(() => {
       .modal-container {
         max-width: 95%;
         margin: 1rem;
+        background: var(--color-bg-elevated);
 
         .modal-header {
           padding: 1.5rem 1.5rem 1rem 1.5rem;

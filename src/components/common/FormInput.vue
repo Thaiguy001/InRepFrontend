@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import '@/assets/style.css'
 
 interface Props {
   id?: string
@@ -91,7 +92,7 @@ function onInput(event: Event) {
       letter-spacing: 0.05em;
 
       i {
-        color: #10b981;
+        color: var(--color-accent);
         font-size: 0.875rem;
       }
 
@@ -116,7 +117,7 @@ function onInput(event: Event) {
       }
 
       &:focus-within {
-        border-color: #10b981;
+        border-color: var(--color-accent);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
       }
 
@@ -161,7 +162,7 @@ function onInput(event: Event) {
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        background: var(--color-accent);
         transform: scaleX(0);
         transition: transform 0.3s ease;
         transform-origin: left;

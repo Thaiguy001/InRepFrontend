@@ -97,6 +97,7 @@ import { UserService } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { useToastHelperService } from '@/services/toastHelperService'
 import { type User } from '@/api/generated/models/User'
+import '@/assets/style.css'
 
 const authStore = useAuthStore()
 const { showSuccess, showError } = useToastHelperService()
@@ -184,15 +185,15 @@ function resetForm() {
 <style scoped>
 /* ── Tokens — matches UserTable gray palette ── */
 .profile-container {
-  --c-bg: #ffffff;
-  --c-surface: #f9fafb;
-  --c-border: #e5e7eb;
-  --c-text: #111827;
-  --c-muted: #6b7280;
-  --c-faint: #d1d5db;
+  --c-bg: var(--color-background);
+  --c-surface: var(--color-surface);
+  --c-border: var(--color-border);
+  --c-text: var(--color-text);
+  --c-muted: var(--color-text-muted);
+  --c-faint: var(--color-text-faint);
   --radius: 12px;
 
-  background: #f3f4f6;
+  background: var(--c-bg);
   min-height: 100vh;
   padding: 2.5rem 1.5rem;
   display: flex;
@@ -202,14 +203,14 @@ function resetForm() {
 
 @media (prefers-color-scheme: dark) {
   .profile-container {
-    --c-bg: #1c1c1e;
-    --c-surface: #2c2c2e;
-    --c-border: #3a3a3c;
-    --c-text: #f5f5f7;
-    --c-muted: #8e8e93;
-    --c-faint: #48484a;
+    --c-bg: var(--color-background);
+    --c-surface: var(--color-surface);
+    --c-border: var(--color-border);
+    --c-text: var(--color-text);
+    --c-muted: var(--color-text-muted);
+    --c-faint: var(--color-text-faint);
 
-    background: #111111;
+    background: var(--c-bg);
   }
 }
 

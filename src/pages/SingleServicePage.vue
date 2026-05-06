@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="content-body">
         <div v-if="pageState.loading" class="loading">
             <ProgressSpinner />
         </div>
@@ -11,8 +11,10 @@
         <div v-else-if="service" class="service-details">
             <div class="header-row">
                 <div>
-                    <h1>{{ service.name }}</h1>
-                    <p class="subtitle">Service Details</p>
+                    <PageHeader
+                        :title="service.name"
+                        subtitle="Service Details"
+                    />
                 </div>
 
                 <Button
@@ -217,6 +219,8 @@ import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import 'primeicons/primeicons.css'
+import PageHeader from '@/components/common/PageHeader.vue'
+import '@/assets/style.css'
 
 import { useToastHelperService } from '@/services/toastHelperService'
 
@@ -498,28 +502,28 @@ function goBack() {
 
 .subtitle {
     margin: 4px 0 0;
-    color: #b0b8c4;
+    color: var(--color-text-muted);
     font-size: 0.95rem;
 }
 
 /* CARDS */
 
 .details-card {
-    border: 1px solid #2f3745;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
-    background: #1b1f27;
-    color: #f3f4f6;
+    background: var(--color-background);
+    color: var(--color-text);
 }
 
 /* Make PrimeVue card content spacing look cleaner */
 .details-card :deep(.p-card-title) {
-    color: #f9fafb;
+    color: var(--color-text);
     font-weight: 700;
     font-size: 1.15rem;
 }
 
 .details-card :deep(.p-card-content) {
-    color: #e5e7eb;
+    color: var(--color-text);
 }
 
 /* SERVICE OVERVIEW ROWS */
@@ -529,7 +533,7 @@ function goBack() {
     justify-content: space-between;
     gap: 20px;
     padding: 14px 0;
-    border-bottom: 1px solid #2f3745;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .detail-row:last-child {
@@ -543,14 +547,14 @@ function goBack() {
 .detail-label {
     min-width: 120px;
     font-weight: 700;
-    color: #f9fafb;
+    color: var(--color-text);
     letter-spacing: 0.01em;
 }
 
 .detail-value {
     flex: 1;
     text-align: right;
-    color: #d1d5db;
+    color: var(--color-text-muted);
     overflow-wrap: anywhere;
     line-height: 1.55;
 }
@@ -569,7 +573,7 @@ function goBack() {
 }
 
 .api-header-left {
-    color: #f9fafb;
+    color: var(--color-text);
     font-weight: 700;
     font-size: 1.05rem;
 }
@@ -592,7 +596,7 @@ function goBack() {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: #e5e7eb;
+    color: var(--color-text);
     font-weight: 500;
 }
 
@@ -605,7 +609,7 @@ function goBack() {
 }
 
 .empty-state {
-    color: #cbd5e1;
+    color: var(--color-text-muted);
     padding: 8px 0;
     font-size: 0.95rem;
 }
@@ -623,16 +627,16 @@ function goBack() {
     align-items: flex-start;
     justify-content: space-between;
     gap: 14px;
-    border: 1px solid #313949;
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     padding: 14px 16px;
-    background: #232834;
+    background: var(--color-background);
     transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
 .api-key-row:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-    border-color: #4b5563;
+    border-color: var(--color-border-hover);
     transform: translateY(-1px);
 }
 
@@ -652,13 +656,13 @@ function goBack() {
 .key-label {
     font-size: 0.92rem;
     font-weight: 700;
-    color: #f3f4f6;
+    color: var(--color-text);
 }
 
 .key-value {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.97rem;
-    color: #e5e7eb;
+    color: var(--color-text);
     overflow-wrap: anywhere;
     margin-bottom: 8px;
     line-height: 1.5;
@@ -669,7 +673,7 @@ function goBack() {
     flex-wrap: wrap;
     gap: 14px;
     font-size: 0.88rem;
-    color: #b8c0cc;
+    color: var(--color-text-muted);
 }
 
 .api-key-actions {
@@ -682,9 +686,9 @@ function goBack() {
 
 .key-block {
     user-select: text;
-    background: #111827;
-    color: #f9fafb;
-    border: 1px solid #374151;
+    background: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
     padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
@@ -724,9 +728,9 @@ function goBack() {
 
 /* Make pre look better for revealed key */
 pre {
-    background: #111827;
-    color: #f9fafb;
-    border: 1px solid #374151;
+    background: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 12px 14px;
     overflow-x: auto;

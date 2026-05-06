@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import '@/assets/style.css'
 
 interface Props {
   visible: boolean
@@ -163,7 +164,7 @@ const handleOverlayClick = () => {
 .modal-header {
   padding: 2rem 2rem 1.5rem 2rem;
   border-bottom: 1px solid #374151;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: var(--color-accent);
   color: white;
   position: relative;
   overflow: hidden;
@@ -294,7 +295,7 @@ const handleOverlayClick = () => {
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: var(--color-accent);
       border: none;
       color: white;
       border-radius: 12px;
