@@ -1,0 +1,392 @@
+:root {
+  /* Brand / Accent  */
+  --color-accent: #6366f1;       /* indigo-500 */
+  --color-accent-hover: #5855eb;
+
+  --primary-500: #60a5fa; /* your accent */
+  --primary-color: #60a5fa;
+
+  /* Background layers */
+  --color-bg-app: #111318;
+  --color-bg-surface: #151922;
+  --color-bg-elevated: #1b1f27;
+
+  /* Borders */
+  --color-border: #2f3745;
+  --color-border-soft: #374151;
+
+  /* Text */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-text: #f3f4f6;
+  --color-text-muted: #9ca3af;
+
+  /* States */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+
+  /* Radius + shadow */
+  --radius: 12px;
+  --shadow-sm: 0 2px 6px rgba(0,0,0,0.15);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+:root.light {
+  --color-bg-app: #f3f4f6;
+  --color-bg-surface: #ffffff;
+  --color-bg-elevated: #ffffff;
+
+  --color-border: #e5e7eb;
+  --color-border-soft: #d1d5db;
+
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+
+/* =========================
+   Layout / Containers
+========================= */
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg-app);
+  color: var(--color-text);
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 8px 0 24px;
+}
+
+.content-body {
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* =========================
+   Headers
+========================= */
+
+
+.header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--p-text-color, #f9fafb);
+}
+
+.subtitle {
+    margin-top: 4px;
+    font-size: 0.95rem;
+    color: var(--p-text-muted-color, #b0b8c4);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* =========================
+   Controls / Inputs
+========================= */
+
+textarea {
+    background: transparent;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    padding: 8px;
+    color: #f3f4f6;
+    resize: vertical;
+}
+
+.control-input {
+    width: 220px;
+}
+
+.control-input .p-inputtext,
+.control-input .p-select {
+    width: 100%;
+}
+
+.create-button {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.radio-group {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.radio-group label {
+    margin-right: 10px;
+    font-size: 0.9rem;
+}
+
+:deep(.p-inputtext),
+:deep(.p-select) {
+    background: var(--color-bg-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+}
+
+:deep(.p-inputtext:focus),
+:deep(.p-select:focus) {
+    border-color: var(--color-accent) !important;
+    box-shadow: none !important;
+}
+
+:deep(.p-button.p-button-secondary) {
+    border-color: var(--color-border) !important;
+    color: var(--color-text-muted) !important;
+}
+
+:deep(.p-button.p-button-secondary:hover) {
+    background: var(--color-bg-surface) !important;
+    color: var(--color-text) !important;
+}
+
+/* =========================
+   Forms
+========================= */
+
+.form-card {
+    border: 1px solid #2f3745;
+    border-radius: 12px;
+    background: #1b1f27;
+    padding: 16px;
+    color: #f3f4f6;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+/* =========================
+   Lists
+========================= */
+
+.incident-list,
+.service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* =========================
+   Cards (Shared System)
+========================= */
+
+.issue-card,
+.service-card {
+    border: 1px solid #2f3745;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #1b1f27;
+    color: #f3f4f6;
+    transition: all 0.15s ease;
+}
+
+.issue-card:hover,
+.service-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Compact card spacing */
+
+.compact-card .p-card-body {
+    padding: 0.55rem 0.9rem;
+}
+
+.compact-card .p-card-content {
+    padding: 0;
+}
+
+.compact-card .p-card-title {
+    margin: 0;
+    color: inherit;
+}
+
+/* Card header layout */
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 34px;
+}
+
+/* =========================
+   Incident-specific
+========================= */
+
+.incident-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.icon {
+    width: 20px;
+    min-width: 20px;
+    font-size: 1.05rem;
+}
+
+.incident-text {
+    flex: 1;
+}
+
+.incident-summary {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.incident-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+    font-size: 0.88rem;
+}
+
+.incident-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* =========================
+   Service-specific
+========================= */
+
+.service-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+.service-name {
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.service-description {
+    font-size: 0.92rem;
+    color: #cbd5e1;
+    opacity: 0.95;
+}
+
+/* =========================
+   Pills / Status
+========================= */
+
+.severity-pill,
+.status-pill {
+    border-radius: 999px;
+    padding: 0.18rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.severity-critical { color: #ef4444; }
+.severity-high { color: #f97316; }
+.severity-medium { color: #eab308; }
+.severity-low { color: #38bdf8; }
+
+.status-resolved { color: #22c55e; }
+.status-triggered { color: #ef4444; }
+.status-acknowledged { color: #f59e0b; }
+
+/* =========================
+   States
+========================= */
+
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--p-text-muted-color);
+}
+
+.error-message {
+    margin-top: 16px;
+}
+
+/* =========================
+   Dialogs
+========================= */
+
+.dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dialog-form label {
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* =========================
+   Filters (Incidents)
+========================= */
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
