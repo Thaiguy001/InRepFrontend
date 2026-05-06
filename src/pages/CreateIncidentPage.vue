@@ -10,18 +10,14 @@
             <InputText id="name" v-model="state.testApiKey" required />
         </div>
         <div class="p-field">
-            <p for="description">Incident Description:</p>
-            <textarea id="description" v-model="state.testDescription" required />
-        </div>
-        <div class="p-field">
             <p for="severity">Incident Severity:</p>
-            <input type="radio" id="low" value="low" v-model="state.testSeverity" required />
+            <input type="radio" name="severity" id="low" value="low" v-model="state.testSeverity" required />
             <label for="low">Low</label>
-            <input type="radio" id="medium" value="medium" v-model="state.testSeverity" required />
+            <input type="radio" name="severity" id="medium" value="medium" v-model="state.testSeverity" required />
             <label for="medium">Medium</label>
-            <input type="radio" id="high" value="high" v-model="state.testSeverity" required />
+            <input type="radio" name="severity" id="high" value="high" v-model="state.testSeverity" required />
             <label for="high">High</label>
-            <input type="radio" id="critical" value="critical" v-model="state.testSeverity" required />
+            <input type="radio" name="severity" id="critical" value="critical" v-model="state.testSeverity" required />
             <label for="critical">Critical</label>
         </div>
         <p></p>
@@ -35,6 +31,9 @@ import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import { IncidentService } from '@/api'
 import { type IncidentCreate } from "@/api/generated/models/IncidentCreate";
+import { useToastHelperService } from "@/services/toastHelperService"
+
+const toast = useToastHelperService()
 
 const state = reactive({
     testMessage: null as string | null,
@@ -53,11 +52,7 @@ async function fetchTest() {
             severity: state.testSeverity || 'low',
         }
 
-        console.log('Attempting to create an incident with name:', state.testMessage)
-        console.log('Description:', state.testDescription)
-        console.log('Severity:', state.testSeverity)
-        console.log('API Key:', state.testApiKey)
-        const response = fetch(import.meta.env.VITE_API_BASE_URL + '/api/v1/incidents', {
+        const response = await fetch(import.meta.env.VITE_API_BASE_URL + '/api/v1/incidents', {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -65,14 +60,20 @@ async function fetchTest() {
             },
             body: JSON.stringify(incidentCreate),
         })
+        if (!response.ok) {
+            if (response.status === 401) {
+                toast.showError('Unauthorized. Invalid API key.')
+                return
+            }
 
-        // Here you would typically call your API to create the incident
-        // For example: await IncidentService.createIncident({ name: state.testMessage })
-        alert(`Incident "${state.testMessage}" created successfully!`)
-        state.testMessage = null // Clear the input after creation
+            toast.showError('Failed to create incident.')
+            return
+        }
+        toast.showSuccess('Incident created successfully!')
+        state.testMessage = null
+        state.testSeverity = null
     } catch (error) {
-        console.error('Error creating incident:', error)
-        alert('Failed to create incident. Please try again.')
+        toast.showError('Failed to create incident. Please try again.')
     }
 }
 </script>
