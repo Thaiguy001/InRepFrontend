@@ -19,23 +19,18 @@
                 </div>
 
                 <div class="form-field">
-                    <label for="description">Incident Description</label>
-                    <textarea id="description" v-model="state.testDescription" required />
-                </div>
-
-                <div class="form-field">
                     <label>Incident Severity</label>
                     <div class="radio-group">
-                        <input type="radio" id="low" value="low" v-model="state.testSeverity" />
-                        <label for="low">Low</label>
+                        <input type="radio" name="severity" id="low" value="Low" v-model="state.testSeverity" required />
+                      <label for="low">Low</label>
 
-                        <input type="radio" id="medium" value="medium" v-model="state.testSeverity" />
+                        <input type="radio" name="severity" id="medium" value="Medium" v-model="state.testSeverity" required />
                         <label for="medium">Medium</label>
 
-                        <input type="radio" id="high" value="high" v-model="state.testSeverity" />
+                        <input type="radio" name="severity" id="high" value="High" v-model="state.testSeverity" required />
                         <label for="high">High</label>
 
-                        <input type="radio" id="critical" value="critical" v-model="state.testSeverity" />
+                        <input type="radio" name="severity" id="critical" value="Critical" v-model="state.testSeverity" required />
                         <label for="critical">Critical</label>
                     </div>
                 </div>
@@ -50,6 +45,11 @@
 import { reactive } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { IncidentService } from '@/api'
+import { type IncidentCreate } from "@/api/generated/models/IncidentCreate";
+import { useToastHelperService } from "@/services/toastHelperService"
+
+const toast = useToastHelperService()
 import PageHeader from '@/components/common/PageHeader.vue'
 import '@/assets/style.css'
 
@@ -69,7 +69,7 @@ async function fetchTest() {
             severity: state.testSeverity || 'low',
         }
 
-        await fetch(import.meta.env.VITE_API_BASE_URL + '/api/v1/incidents', {
+        const response = await fetch(import.meta.env.VITE_API_BASE_URL + '/api/v1/incidents', {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -77,12 +77,20 @@ async function fetchTest() {
             },
             body: JSON.stringify(incidentCreate),
         })
+        if (!response.ok) {
+            if (response.status === 401) {
+                toast.showError('Unauthorized. Invalid API key.')
+                return
+            }
 
-        alert(`Incident "${state.testMessage}" created successfully!`)
+            toast.showError('Failed to create incident.')
+            return
+        }
+        toast.showSuccess('Incident created successfully!')
         state.testMessage = null
+        state.testSeverity = null
     } catch (error) {
-        console.error(error)
-        alert('Failed to create incident.')
+        toast.showError('Failed to create incident. Please try again.')
     }
 }
 </script>
