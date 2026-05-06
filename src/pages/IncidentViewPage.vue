@@ -190,6 +190,7 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Dialog from 'primevue/dialog'
 import Textarea from 'primevue/textarea'
 import 'primeicons/primeicons.css'
+import '@/assets/style.css'
 
 import { useToastHelperService } from '@/services/toastHelperService'
 import { useAuthStore } from '@/stores/auth'

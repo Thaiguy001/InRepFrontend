@@ -25,6 +25,7 @@ import EditUserModal from '@/components/AdminEditUserModal.vue'
 import { UserService } from '@/api'
 import { useToastHelperService } from '@/services/toastHelperService'
 import { type User } from '@/api/generated/models/User'
+import '@/assets/style.css'
 
 const confirm = useConfirm()
 const { showSuccess, showError } = useToastHelperService()

@@ -112,6 +112,7 @@ import IconField from 'primevue/iconfield'
 import ProgressSpinner from 'primevue/progressspinner'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import { type User } from '@/api/generated/models/User'
+import '@/assets/style.css'
 
 defineProps<{ users: User[]; loading: boolean }>()
 
@@ -146,31 +147,31 @@ function initials(user: User) {
 <style scoped>
 /* ── Tokens ── */
 .table-wrapper {
-  --c-bg:       #ffffff;
-  --c-surface:  #f9fafb;
-  --c-border:   #e5e7eb;
-  --c-text:     #111827;
-  --c-muted:    #6b7280;
-  --c-faint:    #d1d5db;
-  --c-accent:   #374151;
+  --c-bg:       var(--color-background);
+  --c-surface:  var(--color-surface);
+  --c-border:   var(--color-border);
+  --c-text:     var(--color-text);
+  --c-muted:    var(--color-text-muted);
+  --c-faint:    var(--color-text-faint);
+  --c-accent:   var(--color-accent);
   --radius:     12px;
 
-  background: #f3f4f6;
+  background: var(--c-bg);
   padding: 2rem 1.5rem;
   min-height: 100vh;
 }
 
 @media (prefers-color-scheme: dark) {
   .table-wrapper {
-    --c-bg:      #1c1c1e;
-    --c-surface: #2c2c2e;
-    --c-border:  #3a3a3c;
-    --c-text:    #f5f5f7;
-    --c-muted:   #8e8e93;
-    --c-faint:   #48484a;
-    --c-accent:  #ebebf0;
+    --c-bg:      var(--color-background);
+    --c-surface: var(--color-surface);
+    --c-border:  var(--color-border);
+    --c-text:    var(--color-text);
+    --c-muted:   var(--color-text-muted);
+    --c-faint:   var(--color-text-faint);
+    --c-accent:  var(--color-accent);
 
-    background: #111111;
+    background: var(--c-bg);
   }
 }
 

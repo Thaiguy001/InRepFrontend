@@ -113,6 +113,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useToastHelperService } from '@/services/toastHelperService'
 import type { Incident } from '@/api/generated/models/Incident'
 import type { Service } from '@/api/generated/models/Service'
+import '@/assets/style.css'
 
 const auth = useAuthStore()
 const { showError } = useToastHelperService()
