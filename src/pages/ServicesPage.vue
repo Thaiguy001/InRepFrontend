@@ -1,9 +1,11 @@
 <template>
-    <div class="container">
+    <div class="content-body">
         <div class="header-row">
             <div>
-                <h1>Services</h1>
-                <p class="subtitle">Manage and configure organization services</p>
+                <PageHeader
+                    title="Services"
+                    subtitle="Manage and configure organization services"
+                />
             </div>
 
             <Button icon="pi pi-plus" class="create-button" rounded @click="openCreate" />
@@ -63,6 +65,9 @@ import InputText from "primevue/inputtext"
 import Message from "primevue/message"
 import ProgressSpinner from "primevue/progressspinner"
 import 'primeicons/primeicons.css'
+import PageHeader from '@/components/common/PageHeader.vue'
+import '@/assets/style.css'
+
 import { useRouter } from "vue-router"
 import { ServiceService } from "@/api"
 import { useToastHelperService } from "@/services/toastHelperService"
@@ -191,16 +196,8 @@ async function deleteService() {
 
 /* HEADER */
 
-.header-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
 h1 {
-    color: #f9fafb;
+    color: var(--color-text);
     margin: 0;
     font-size: 2rem;
     font-weight: 700;
@@ -208,7 +205,7 @@ h1 {
 
 .subtitle {
     margin: 4px 0 0;
-    color: #b0b8c4;
+    color: var(--color-text-muted);
     font-size: 0.95rem;
 }
 
@@ -228,18 +225,18 @@ h1 {
 }
 
 .service-card {
-    border: 1px solid #2f3745;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
-    background: #1b1f27;
-    color: #f3f4f6;
+    background: var(--color-bg-surface);
+    color: var(--color-text);
 }
 
 .service-card:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-    border-color: #4b5563;
+    border-color:  var(--color-accent);
 }
 
 /* Compact card spacing */
@@ -281,14 +278,14 @@ h1 {
 .service-name {
     font-size: 1rem;
     font-weight: 700;
-    color: #f9fafb;
+    color: var(--c-text);
     line-height: 1.2;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .service-description {
-    color: #cbd5e1;
+    color: var(--c-text-muted);
     font-size: 0.92rem;
     line-height: 1.3;
     overflow-wrap: anywhere;
@@ -306,7 +303,7 @@ h1 {
 
 .dialog-form label {
     font-weight: 600;
-    color: #e5e7eb;
+    color: var(--c-text);
     margin-top: 4px;
 }
 

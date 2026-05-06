@@ -1,8 +1,10 @@
 <template>
-    <div class="container">
+    <div class="content-body">
         <div class="header-section">
             <div>
-                <h1>Incidents</h1>
+                <PageHeader
+                    title="Incidents"
+                />
             </div>
         </div>
 
@@ -148,6 +150,8 @@ import Message from 'primevue/message'
 import ProgressSpinner from 'primevue/progressspinner'
 import Button from 'primevue/button'
 import 'primeicons/primeicons.css'
+import PageHeader from '@/components/common/PageHeader.vue'
+import '@/assets/style.css'
 
 import { type Incident } from '@/api/generated/models/Incident'
 import { type Service } from '@/api/generated/models/Service'
@@ -407,13 +411,24 @@ function formatDate(ts: any) {
     margin-bottom: 18px;
 }
 
-.header-section h1 {
-    margin-bottom: 14px;
-    color: var(--p-text-color);
+.filter-card {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
 }
 
-.filter-card {
-    margin-bottom: 10px;
+.filter-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.advanced-panel {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
 }
 
 .checkbox-group {
@@ -468,17 +483,19 @@ function formatDate(ts: any) {
 }
 
 .issue-card {
-    border: 1px solid #2f3745;
-    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
     cursor: pointer;
-    background: #1b1f27;
-    color: #f3f4f6;
+    background: var(--color-bg-elevated);
+    color: var(--color-text);
     transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .issue-card:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-soft);
 }
 
 .compact-card :deep(.p-card-body) {
@@ -540,9 +557,7 @@ function formatDate(ts: any) {
 .incident-summary {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--p-text-color);
-    line-height: 1.25;
-    overflow-wrap: anywhere;
+    color: var(--color-text);
 }
 
 .incident-meta {
@@ -551,7 +566,7 @@ function formatDate(ts: any) {
     gap: 10px;
     margin-top: 5px;
     font-size: 0.88rem;
-    color: var(--p-text-muted-color);
+    color: var(--color-text-muted);
 }
 
 .issue-number {
@@ -646,37 +661,37 @@ function formatDate(ts: any) {
 }
 
 .severity-critical {
-    background: rgba(239, 68, 68, 0.14);
+    background: rgba(239, 68, 68, 0.12);
     color: #ef4444;
 }
 
 .severity-high {
-    background: rgba(249, 115, 22, 0.14);
+    background: rgba(249, 115, 22, 0.12);
     color: #f97316;
 }
 
 .severity-medium {
-    background: rgba(234, 179, 8, 0.14);
+    background: rgba(234, 179, 8, 0.12);
     color: #eab308;
 }
 
 .severity-low {
-    background: rgba(56, 189, 248, 0.14);
+    background: rgba(56, 189, 248, 0.12);
     color: #38bdf8;
 }
 
 .status-resolved {
-    background: rgba(34, 197, 94, 0.14);
+    background: rgba(34, 197, 94, 0.12);
     color: #22c55e;
 }
 
 .status-triggered {
-    background: rgba(239, 68, 68, 0.14);
+    background: rgba(239, 68, 68, 0.12);
     color: #ef4444;
 }
 
 .status-acknowledged {
-    background: rgba(245, 158, 11, 0.14);
+    background: rgba(245, 158, 11, 0.12);
     color: #f59e0b;
 }
 
